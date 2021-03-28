@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<RCC>
+    <qresource prefix="/">
+        <file alias="main.qml">../task1/main.qml</file>
+        <file alias="FuncBlock/FunckBlock.qml">../task1/FuncBlock/FunckBlock.qml</file>
+        <file alias="FunckBlock.qml">../task1/FunckBlock.qml</file>
+    </qresource>
+</RCC>
