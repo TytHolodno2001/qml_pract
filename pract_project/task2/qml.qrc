@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>FunckBlock.qml</file>
+        <file>FunckBlock2.qml</file>
+    </qresource>
+</RCC>

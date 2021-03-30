@@ -1,11 +1,9 @@
 import QtQuick 2.0
-import QtQuick.Controls 2.15
-
 
 Item {
     id: funckBlock
-    width: 300
-    height: 600
+    width: 250
+    height: (itemHeight + itemMargin) * (listItem.count + 1)
 
     property color item: "#79B2B2"
     property color back: "#669999"
@@ -19,6 +17,24 @@ Item {
     property int menuRadius: 6
     property int menuPointSize: 10
 
+    // для добавления в меню дургих пунктов
+    property var itemComp: ({ name: "Elem4", stat: "no" })
+
+
+Rectangle {
+
+    width: funckBlock.menuWidth
+    height: funckBlock.itemHeight
+
+    Drag.active: dragArea.drag.active
+    Drag.hotSpot.x: 10
+    Drag.hotSpot.y: 10
+
+    MouseArea {
+               id: dragArea
+               anchors.fill: parent
+               drag.target: parent
+           }
 
     Rectangle {
         id: menu
@@ -53,7 +69,7 @@ Item {
             Image {
                 id: arrow_img
                 anchors.verticalCenter: parent.verticalCenter
-                source: "file:/pract_project/task1/arrow.png"
+                source: "file:/pract_project/task2/arrow.png"
                 anchors.horizontalCenter: parent.horizontalCenter
                 rotation: 0
             }
@@ -128,7 +144,7 @@ Item {
 
     Rectangle {
         id:itemMenu
-        y: 50
+        y: menu.y + 50
         width: funckBlock.itemWidth + funckBlock.itemMargin + funckBlock.itemMargin
         height: 0
         clip: true
@@ -156,7 +172,7 @@ Item {
 
             Rectangle {
                 id: left_block
-                y: 0
+//                y: 0
                 width: 125
                 height: funckBlock.itemHeight
                 color: funckBlock.item
@@ -194,7 +210,7 @@ Item {
 
             Rectangle {
                 id:right_block
-                y: 0
+//                y: 0
                 width: 75
                 height: funckBlock.itemHeight
                 color: funckBlock.item
@@ -241,19 +257,26 @@ Item {
 
             ListModel {
                 id:listItem
+                dynamicRoles: true
+                Component.onCompleted: {
+                        append({ name: "Elem1", stat: "no" })
+                        append({name: "Elem2",stat: "yes"})
+                        append({name: "Elem3",stat: "yes"})
+                        append(itemComp)
+                    }
 
-                ListElement {
-                    name: "Elem1"
-                    stat: "yes"
-                }
-                ListElement {
-                    name: "Elem2"
-                    stat: "no"
-                }
-                ListElement {
-                    name: "Elem2"
-                    stat: "no"
-                }
+//                ListElement {
+//                    name: "Elem1"
+//                    stat: "yes"
+//                }
+//                ListElement {
+//                    name: "Elem2"
+//                    stat: "no"
+//                }
+//                ListElement {
+//                    name: "Elem2"
+//                    stat: "no"
+//                }
             }
 
             Component {
@@ -289,7 +312,7 @@ Item {
                         radius: funckBlock.menuRadius
                         Image {
                             anchors.verticalCenter: parent.verticalCenter
-                            source: stat=="yes" ? "file:/pract_project/task1/yes.png" : "file:/pract_project/task1/no.png"
+                            source: stat=="yes" ? "file:/pract_project/task2/yes.png" : "file:/pract_project/task2/no.png"
                             anchors.horizontalCenter: parent.horizontalCenter
                             rotation: 0
                         }
@@ -311,3 +334,5 @@ Item {
 
 
 }
+}
+
