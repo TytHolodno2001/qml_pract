@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>PPU.qml</file>
+        <file>BASI.qml</file>
+        <file>BAPPD.qml</file>
+        <file>PPO.qml</file>
+        <file>line.qml</file>
+    </qresource>
+</RCC>
