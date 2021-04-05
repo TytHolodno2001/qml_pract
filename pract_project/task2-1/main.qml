@@ -16,6 +16,40 @@ Window {
     property int pointSize: 10
     property color fontColor:"black"
 
+
+    // функция для кнопок - в параметры передаются настраевымые значения
+    function createFunckBlock(name_eng, name_ru) {
+        //динамическое создание объекта
+        let component = Qt.createComponent("funckBlock.qml");
+        if (component.status == Component.Ready) {
+            let childRec = component.createObject(scene);
+            childRec.x = margins;
+            childRec.y = margins;
+            childRec.dragMinX =  margins
+            childRec.dragMaxX =  scene.width - margins - childRec.width
+            childRec.dragMinY =  margins
+            childRec.dragMaxY =  scene.height - margins - childRec.height
+            childRec.itemText = name_ru
+
+            let coun = funckBlocks.count
+            funckBlocks.append({id:name_eng,data:childRec})
+
+            for( var i = 0; i < coun; i++ ) {
+                //в connect  можно добавить данные о связи между блоками
+                let componentLine = Qt.createComponent("line.qml");
+                if (componentLine.status == Component.Ready) {
+                    let childline = componentLine.createObject(scene);
+                    childline.x1 = childRec.x + childRec.width/2;
+                    childline.y1 = childRec.y + childRec.height/2;
+                    childline.x2 = funckBlocks.get(i).data.x + funckBlocks.get(i).data.width/2;
+                    childline.y2 = funckBlocks.get(i).data.y + funckBlocks.get(i).data.height/2;
+                    childline.visible = true
+                    connectFunckBlock.append({firstNode: name_eng, secondNode: funckBlocks.get(i).id, connect:childline })
+                }
+            }
+        }
+    }
+
     // поиск по блокам и связям
     function find(model, criteria) {
         for(var i = 0; i < model.count; ++i) if (criteria(model.get(i))) return model.get(i)
@@ -87,27 +121,12 @@ Window {
 
         MouseArea
         {
-
             anchors.fill: parent
             onClicked:
             {
-                //динамическое создание объекта
                 if(createBlockPPU.createBlock == "no") {
-                    let component = Qt.createComponent("PPU.qml");
-                    if (component.status == Component.Ready) {
-                        let childRec = component.createObject(scene);
-                        childRec.x = margins;
-                        childRec.y = margins;
-                        childRec.dragMinX =  margins
-                        childRec.dragMaxX =  scene.width - margins - childRec.width
-                        childRec.dragMinY =  margins
-                        childRec.dragMaxY =  scene.height - margins - childRec.height
-
-                        createBlockPPU.createBlock = "yes"
-
-                        let coun = funckBlocks.count
-                        funckBlocks.append({id: "PPU",data:childRec})
-                    }
+                    createFunckBlock( "PPU", "ППУ" )
+                    createBlockPPU.createBlock = "yes"
                 }
             }
         }
@@ -157,28 +176,11 @@ Window {
             anchors.fill: parent
             onClicked:
             {
-                //динамическое создание объекта
                 if(createBlockBASI.createBlock == "no") {
-                    let component = Qt.createComponent("BASI.qml");
-                    if (component.status == Component.Ready) {
-                        let childRec = component.createObject(scene);
-                        childRec.x = margins;
-                        childRec.y = margins;
-                        childRec.dragMinX =  margins
-                        childRec.dragMaxX =  scene.width - margins - childRec.width
-                        childRec.dragMinY =  margins
-                        childRec.dragMaxY =  scene.height - margins - childRec.height
-                        createBlockBASI.createBlock = "yes"
-
-                        let coun = funckBlocks.count
-                        funckBlocks.append({id:"BASI",data:childRec})
-
-                        for( var i = 0; i < coun; i++ ) {
-                            //в connect  можно добавить данные о связи между блоками
-                            connectFunckBlock.append({firstNode: "BASI", secondNode: funckBlocks.get(i).id, connect: true})
-                        }
-                    }
+                    createFunckBlock( "BASI", "БАСИ" )
+                    createBlockBASI.createBlock = "yes"
                 }
+
             }
         }
     }
@@ -227,28 +229,12 @@ Window {
             anchors.fill: parent
             onClicked:
             {
-                //динамическое создание объекта
+
                 if(createBlockPPO.createBlock == "no") {
-                    let component = Qt.createComponent("PPO.qml");
-                    if (component.status == Component.Ready) {
-                        let childRec = component.createObject(scene);
-                        childRec.x = margins;
-                        childRec.y = margins;
-                        childRec.dragMinX =  margins
-                        childRec.dragMaxX =  scene.width - margins - childRec.width
-                        childRec.dragMinY =  margins
-                        childRec.dragMaxY =  scene.height - margins - childRec.height
-                        createBlockPPO.createBlock = "yes"
-
-                        let coun = funckBlocks.count
-                        funckBlocks.append({id:"PPO",data:childRec})
-
-                        for( var i = 0; i < coun; i++ ) {
-                            //в connect  можно добавить данные о связи между блоками
-                            connectFunckBlock.append({firstNode: "PPO", secondNode: funckBlocks.get(i).id, connect: true})
-                        }
-                    }
+                    createFunckBlock( "PPO", "ППО" )
+                    createBlockPPO.createBlock = "yes"
                 }
+
             }
         }
     }
@@ -297,28 +283,12 @@ Window {
             anchors.fill: parent
             onClicked:
             {
-                //динамическое создание объекта
+
                 if(createBlockBAPPD.createBlock == "no") {
-                    let component = Qt.createComponent("BAPPD.qml");
-                    if (component.status == Component.Ready) {
-                        let childRec = component.createObject(scene);
-                        childRec.x = margins;
-                        childRec.y = margins;
-                        childRec.dragMinX =  margins
-                        childRec.dragMaxX =  scene.width - margins - childRec.width
-                        childRec.dragMinY =  margins
-                        childRec.dragMaxY =  scene.height - margins - childRec.height
-                        createBlockBAPPD.createBlock = "yes"
-
-                        let coun = funckBlocks.count
-                        funckBlocks.append({id:"BAPPD",data:childRec})
-
-                        for( var i = 0; i < coun; i++ ) {
-                            //в connect  можно добавить данные о связи между блоками
-                            connectFunckBlock.append({firstNode: "BAPPD", secondNode: funckBlocks.get(i).id, connect: true})
-                        }
-                    }
+                    createFunckBlock("BAPPD", "БАППД" )
+                    createBlockBAPPD.createBlock = "yes"
                 }
+
             }
         }
     }
@@ -377,19 +347,18 @@ Window {
     }
 
     //показать связи
-    property bool createConnect: false
     Rectangle {
+        id: conn
         width: menuWidth
         height: menuHeight
         color: menuColor
         radius: menuRadius
         y: parent.height - (menuHeight + margins)*2
-
-
+        property bool visibleConnect: true
         Text {
             width: parent.width
             height: parent.height
-            text: createConnect?"Скрыть связи":"Показать связи"
+            text: conn.visibleConnect?"Скрыть связи":"Показать связи"
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             font.family: fontFamily
@@ -401,49 +370,22 @@ Window {
         {
             anchors.fill: parent
             onClicked:
-            {
-                //создание связей в виде линий
-                if (!createConnect) {
-                    for(let i = 0; i < funckBlocks.count-1; i++){
-                        for(let j= 1; j < funckBlocks.count; j++){
+            { //отоброжение свзяей
 
-                            let conn = find(connectFunckBlock, function(item){return item.firstNode === funckBlocks.get(i).id && item.secondNode === funckBlocks.get(j).id})
-                            if(conn === null){let component = Qt.createComponent("line.qml");
-                                if (component.status == Component.Ready) {
-                                    let childRec = component.createObject(scene);
-                                    childRec.x1 = funckBlocks.get(i).data.x + funckBlocks.get(i).data.width/2;
-                                    childRec.y1 = funckBlocks.get(i).data.y + funckBlocks.get(i).data.height/2;
-                                    childRec.x2 = funckBlocks.get(j).data.x + funckBlocks.get(j).data.width/2;
-                                    childRec.y2 = funckBlocks.get(j).data.y+ funckBlocks.get(j).data.height/2;
-
-                                    //в connect  можно добавить данные о связи между блоками
-                                    connectFunckBlock.append({firstNode: funckBlocks.get(i).id, secondNode: funckBlocks.get(j).id, connect: childRec})
-
-                                }
-                            }
-                            else {
-
-                                conn.connect.x1 = funckBlocks.get(i).data.x + funckBlocks.get(i).data.width/2;
-                                conn.connect.y1 = funckBlocks.get(i).data.y + funckBlocks.get(i).data.height/2;
-                                conn.connect.x2 = funckBlocks.get(j).data.x + funckBlocks.get(j).data.width/2;
-                                conn.connect.y2 = funckBlocks.get(j).data.y+ funckBlocks.get(j).data.height/2;
-                                conn.connect.visible = true
-
-                            }
-
-
-                        }
-
-                    }
-                    createConnect =  true
-                }
-                //если уже созданы то скрываем их
-                else {
+                if(conn.visibleConnect){
+                    conn.visibleConnect = false
                     for(let i = 0; i < connectFunckBlock.count; i++){
                         connectFunckBlock.get(i).connect.visible = false
                     }
-                    createConnect =  false
                 }
+                else{
+                    for(let i = 0; i < connectFunckBlock.count; i++){
+                        connectFunckBlock.get(i).connect.visible = true
+                    }
+                    conn.visibleConnect = true
+                }
+
+
             }
         }
     }

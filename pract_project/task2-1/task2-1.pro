@@ -27,5 +27,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     arrow.png \
+    funckBlock.qml \
     no.png \
     yes.png
