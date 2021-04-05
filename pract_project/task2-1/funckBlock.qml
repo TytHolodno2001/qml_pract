@@ -1,5 +1,5 @@
 import QtQuick 2.0
-
+import QtQuick.Controls 2.15
 Rectangle{
     property color itemColor: "#79B2B2"
     property int itemRadius: 6
@@ -9,9 +9,11 @@ Rectangle{
     property int dragMaxX: 0
     property int dragMinY: 0
     property int dragMaxY: 0
-
-
     property string itemText: ""
+
+    signal positionChange(double x, double y, string itemText)
+
+
     id: dragRect
     width: itemWidth
     height: itemHeight
@@ -41,5 +43,10 @@ Rectangle{
             maximumX: dragMaxX
             maximumY: dragMaxY
         }
+
+     onPositionChanged:  {
+         positionChange(dragRect.x, dragRect.y, dragRect.itemText)
+     }
+
     }
 }

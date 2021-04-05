@@ -16,6 +16,28 @@ Window {
     property int pointSize: 10
     property color fontColor:"black"
 
+    // Перемещение связи за квадратом
+    function onPositionChange(x,y,itemText){
+        for(let i = 0; i < connectFunckBlock.count; i++){
+            if(connectFunckBlock.get(i).firstNode.itemText  == itemText) {
+                let firstNode = connectFunckBlock.get(i).firstNode
+                let secondNode = connectFunckBlock.get(i).secondNode
+                let connect = connectFunckBlock.get(i).connect
+                connect.x1 = firstNode.x + firstNode.width/2
+                connect.y1 = firstNode.y + firstNode.height/2
+
+
+            }
+            else if(connectFunckBlock.get(i).secondNode.itemText == itemText) {
+                let firstNode = connectFunckBlock.get(i).firstNode
+                let secondNode = connectFunckBlock.get(i).secondNode
+                let connect = connectFunckBlock.get(i).connect
+                connect.x2 = secondNode.x + secondNode.width/2
+                connect.y2 = secondNode.y + secondNode.height/2
+
+            }
+        }
+    }
 
     // функция для кнопок - в параметры передаются настраевымые значения
     function createFunckBlock(name_eng, name_ru) {
@@ -31,8 +53,12 @@ Window {
             childRec.dragMaxY =  scene.height - margins - childRec.height
             childRec.itemText = name_ru
 
+
+            // Сигнал
+            childRec.positionChange.connect(onPositionChange)
+
             let coun = funckBlocks.count
-            funckBlocks.append({id:name_eng,data:childRec})
+
 
             for( var i = 0; i < coun; i++ ) {
                 //в connect  можно добавить данные о связи между блоками
@@ -43,10 +69,13 @@ Window {
                     childline.y1 = childRec.y + childRec.height/2;
                     childline.x2 = funckBlocks.get(i).data.x + funckBlocks.get(i).data.width/2;
                     childline.y2 = funckBlocks.get(i).data.y + funckBlocks.get(i).data.height/2;
+
                     childline.visible = true
-                    connectFunckBlock.append({firstNode: name_eng, secondNode: funckBlocks.get(i).id, connect:childline })
+                    console.log(childline.x, childline.y, childline.x1,childline.y1, childline.x2,childline.y2, childline.rotation)
+                    connectFunckBlock.append({firstNode: childRec, secondNode: funckBlocks.get(i).data, connect:childline })
                 }
             }
+            funckBlocks.append({id:name_eng,data:childRec})
         }
     }
 
@@ -78,6 +107,13 @@ Window {
         radius: menuRadius
         z: -1
         clip: true
+
+
+        DropArea {
+            id: dropArea
+            anchors.fill: parent
+        }
+
     }
 
     //меню для создания и удаления объектов
@@ -301,7 +337,6 @@ Window {
         radius: menuRadius
         y: parent.height - menuHeight - margins
 
-
         Text {
             width: parent.width
             height: parent.height
@@ -342,6 +377,18 @@ Window {
                     BAPPD.data.x = scene.width/2 + margins/2
                     BAPPD.data.y = margins
                 }
+
+                for(let i = 0; i < connectFunckBlock.count; i++){
+                    let firstNode = connectFunckBlock.get(i).firstNode
+                    let secondNode = connectFunckBlock.get(i).secondNode
+                    let connect = connectFunckBlock.get(i).connect
+
+                    connect.x1 = firstNode.x + firstNode.width/2
+                    connect.y1 = firstNode.y + firstNode.height/2
+                    connect.x2 = secondNode.x + firstNode.width/2
+                    connect.y2 = secondNode.y + firstNode.height/2
+
+                }
             }
         }
     }
@@ -380,9 +427,21 @@ Window {
                 }
                 else{
                     for(let i = 0; i < connectFunckBlock.count; i++){
+
+                        let firstNode = connectFunckBlock.get(i).firstNode
+                        let secondNode = connectFunckBlock.get(i).secondNode
+                        let connect = connectFunckBlock.get(i).connect
+
+                        connect.x1 = firstNode.x + firstNode.width/2
+                        connect.y1 = firstNode.y + firstNode.height/2
+                        connect.x2 = secondNode.x + firstNode.width/2
+                        connect.y2 = secondNode.y + firstNode.height/2
+
                         connectFunckBlock.get(i).connect.visible = true
+
                     }
                     conn.visibleConnect = true
+
                 }
 
 

@@ -2,15 +2,15 @@ import QtQuick 2.15
 
 
 Rectangle {
-    property real x1: 0
-    property real y1: 0
-    property real x2: 300
-    property real y2: 300
+    property real x1
+    property real y1
+    property real x2
+    property real y2
 
     id: l
     color: "black"
     height: 3
-    smooth: true
+
     visible: true
     z: 1
 
@@ -34,8 +34,12 @@ Rectangle {
         var a, m, d;
         var b = sx2 - sx1;
         if (b === 0) {
-            x = x + height
-            return 90;
+            if(y2>y1)
+            {
+            return 90
+            }
+            else
+            return 270;
         }
         a = sy2 - sy1;
         m = a / b;
