@@ -10,7 +10,8 @@ Window {
     height: 1000
     visible: true
     color: darkTheme? Param.dbgColor:Param.lbgColor
-
+    minimumHeight: Param.margin80*3 + Param.margin48*2 + menu.height + menu2.height
+    minimumWidth: Param.buttonBigWidth + Param.margin80*2 + Param.margin48*3 + Param.fBWidth
     property bool darkTheme: true
 
     // Перемещение связи за квадратом
