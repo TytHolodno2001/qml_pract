@@ -26,6 +26,22 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+    ArrowBigBlack.png \
+    ArrowBigBlue.png \
+    ArrowBigWhite.png \
+    ArrowSmallBlack.png \
+    ArrowSmallWhite.png \
+    BASIDark.png \
+    BASILight.png \
+    PPODark.png \
+    PPOLight.png \
+    PPUDark.png \
+    PPULight.png \
+    StateActive.png \
+    StateDark.png \
+    StateLight.png \
+    ThemeDark.png \
+    ThemeLight.png \
     arrow.png \
     funckBlock.qml \
     no.png \

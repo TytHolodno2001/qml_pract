@@ -1,5 +1,5 @@
 import QtQuick 2.15
-
+import Param 1.0
 
 Rectangle {
     property real x1
@@ -8,8 +8,8 @@ Rectangle {
     property real y2
 
     id: l
-    color: "black"
-    height: 3
+    color: Param.accentСolor1
+    height: Param.connectWidth
 
     visible: true
     z: 1

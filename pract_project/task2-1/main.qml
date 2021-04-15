@@ -1,20 +1,17 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
+import QtGraphicalEffects 1.12
+import Param 1.0
 
 Window {
-
-    width: 1200
-    height: 480
+    id: mainWindow
+    width: 1920
+    height: 1000
     visible: true
-    property int menuWidth: 250
-    property int menuHeight: 50
-    property int margins: 10
-    property color menuColor: "#DCCEC3"
-    property int menuRadius: 6
-    property string fontFamily: "Comfortaa"
-    property int pointSize: 10
-    property color fontColor:"black"
+    color: darkTheme? Param.dbgColor:Param.lbgColor
+
+    property bool darkTheme: true
 
     // Перемещение связи за квадратом
     function onPositionChange(x,y,itemText){
@@ -25,8 +22,6 @@ Window {
                 let connect = connectFunckBlock.get(i).connect
                 connect.x1 = firstNode.x + firstNode.width/2
                 connect.y1 = firstNode.y + firstNode.height/2
-
-
             }
             else if(connectFunckBlock.get(i).secondNode.itemText == itemText) {
                 let firstNode = connectFunckBlock.get(i).firstNode
@@ -40,25 +35,24 @@ Window {
     }
 
     // функция для кнопок - в параметры передаются настраевымые значения
-    function createFunckBlock(name_eng, name_ru) {
+    function createFunckBlock(name_eng, name_ru, icon) {
         //динамическое создание объекта
         let component = Qt.createComponent("funckBlock.qml");
         if (component.status == Component.Ready) {
             let childRec = component.createObject(scene);
-            childRec.x = margins;
-            childRec.y = margins;
-            childRec.dragMinX =  margins
-            childRec.dragMaxX =  scene.width - margins - childRec.width
-            childRec.dragMinY =  margins
-            childRec.dragMaxY =  scene.height - margins - childRec.height
+            childRec.x =  Param.margin48;
+            childRec.y =  Param.margin48;
+            childRec.dragMinX =  Param.margin48
+            childRec.dragMaxX =  scene.width -  Param.margin48 - childRec.width
+            childRec.dragMinY =  Param.margin48
+            childRec.dragMaxY =  scene.height -  Param.margin48 - childRec.height
             childRec.itemText = name_ru
-
+            childRec.icon = icon
 
             // Сигнал
             childRec.positionChange.connect(onPositionChange)
 
             let coun = funckBlocks.count
-
 
             for( var i = 0; i < coun; i++ ) {
                 //в connect  можно добавить данные о связи между блоками
@@ -88,346 +82,253 @@ Window {
     // тут хранятся созданные блоки
     ListModel {
         id: funckBlocks
-        dynamicRoles: true
+
     }
 
     // тут хранятся связи между ними
     ListModel {
         id: connectFunckBlock
-        dynamicRoles: true
+
+    }
+
+    //заголовок
+    Rectangle{
+        x: Param.margin80
+        y: 0
+        height: Param.margin80*2 + Param.margin48
+        width: Param.buttonBigWidth
+        color: mainWindow.color
+        Text {
+            width: parent.width
+            height: parent.height
+            anchors.left: parent.left;
+            anchors.leftMargin: 0
+            text: "Мониторинг"
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+            font.family: Param.textFontFamily
+            font.pointSize: Param.textTitleSize
+            color: darkTheme? Param.accentСolor1:Param.ltextColor1
+        }
+    }
+
+    //кнопка для смены цвета темы
+    Rectangle{
+        id: theme
+        x: mainWindow.width - Param.buttonThemeSize - Param.margin80
+        y: Param.margin80
+        height: Param.buttonThemeSize
+        width: Param.buttonThemeSize
+        color: mainWindow.color
+        Component.onCompleted: {
+            let component = Qt.createComponent("theme.qml");
+            if (component.status === Component.Ready) {
+                let childRec = component.createObject(theme)
+                childRec.onClick.connect(function(){
+                    darkTheme = !darkTheme
+                })
+            }
+        }
     }
 
     //сцена для отоброжения объектов
     Rectangle {
         id: scene
-        border.color: menuColor
-        width: parent.width - margins - menuWidth
-        height: parent.height
-        x: margins + menuWidth
-        radius: menuRadius
+        color: darkTheme?Param.delemFirstColor:Param.lelemFirstColor
+        width: parent.width - Param.margin48 - Param.margin80*2- Param.buttonBigWidth
+        height: parent.height - Param.margin48 - Param.margin80*3
+        y: Param.margin80*2 + Param.margin48
+        x: Param.margin48 + Param.margin80 + Param.buttonBigWidth
+        radius: Param.elemRadius
         z: -1
         clip: true
-
 
         DropArea {
             id: dropArea
             anchors.fill: parent
         }
-
     }
 
-    //меню для создания и удаления объектов
-
-    //создание ППУ
-    Rectangle {
-        id: createBlockPPU
-        width: menuWidth
-        height: menuHeight
-        color: menuColor
-        radius: menuRadius
-
-        property string createBlock:  "no"
-
-        Text {
-            width: parent.width - menuHeight
-            height: parent.height
-            text: "Создать ППУ"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.family: fontFamily
-            font.pointSize: pointSize
-            color: fontColor
-        }
-
-        //показывает создан ли объект
-        Rectangle {
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            width: menuHeight
-            height: menuHeight
-            color: menuColor
-            radius: menuRadius
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                source: createBlockPPU.createBlock =="yes" ? "file:/pract_project/task2-1/yes.png" : "file:/pract_project/task2-1/no.png"
-                anchors.horizontalCenter: parent.horizontalCenter
-                rotation: 0
-            }
-        }
-
-        MouseArea
-        {
-            anchors.fill: parent
-            onClicked:
-            {
-                if(createBlockPPU.createBlock == "no") {
-                    createFunckBlock( "PPU", "ППУ" )
-                    createBlockPPU.createBlock = "yes"
-                }
-            }
-        }
+    //тени
+    DropShadow {
+        anchors.fill: scene
+        horizontalOffset: Param.horizOffset
+        verticalOffset: Param.verticOffset
+        radius: Param.mainRadius
+        samples: Param.mainSamples
+        color: darkTheme?Param.dDropShadowColor:Param.lDropShadowColor
+        source: scene
     }
 
-    //создание БАСИ
+    //меню для отоброжения и скрытия объектов
     Rectangle {
-        id: createBlockBASI
-        width: menuWidth
-        height: menuHeight
-        color: menuColor
-        radius: menuRadius
-        y: menuHeight + margins
+        id: menu
+        color: darkTheme?Param.delemFirstColor:Param.lelemFirstColor
+        width: Param.buttonBigWidth
+        height: Param.buttonSmallHeight*4 + Param.margin32*2 + Param.margin24*3
+        y: Param.margin80*2 + Param.margin48
+        x: Param.margin80
+        radius: Param.elemRadius
+        z: -1
 
-        property string createBlock:  "no"
-
-        Text {
-            width: parent.width - menuHeight
-            height: parent.height
-            text: "Создать БАСИ"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.family: fontFamily
-            font.pointSize: pointSize
-            color: fontColor
-        }
+        property string createBlockPPU:  "no"
+        property string createBlockPPO:  "no"
+        property string createBlockBASI:  "no"
+        property string createBlockBAPPD:  "no"
 
 
-        //показывает создан ли объект
-        Rectangle {
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            width: menuHeight
-            height: menuHeight
-            color: menuColor
-            radius: menuRadius
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                source: createBlockBASI.createBlock =="yes" ? "file:/pract_project/task2-1/yes.png" : "file:/pract_project/task2-1/no.png"
-                anchors.horizontalCenter: parent.horizontalCenter
-                rotation: 0
-            }
-        }
+        Component.onCompleted: {
+            let component = Qt.createComponent("smallButton.qml");
+            if (component.status === Component.Ready) {
 
-        MouseArea
-        {
-            anchors.fill: parent
-            onClicked:
-            {
-                if(createBlockBASI.createBlock == "no") {
-                    createFunckBlock( "BASI", "БАСИ" )
-                    createBlockBASI.createBlock = "yes"
-                }
+                let childRec = component.createObject(menu)
+                childRec.x = parent.x + Param.margin32
+                childRec.y = parent.y + Param.margin32
+                childRec.itemText = "Отобразить ППУ"
+                childRec.itemTextOnClick = "Скрыть ППУ"
 
-            }
-        }
-    }
-
-    //создание ППО
-    Rectangle {
-        id: createBlockPPO
-        width: menuWidth
-        height: menuHeight
-        color: menuColor
-        radius: menuRadius
-        y: (menuHeight + margins)*2
-
-        property string createBlock:  "no"
-
-        Text {
-            width: parent.width - menuHeight
-            height: parent.height
-            text: "Создать ППО"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.family: fontFamily
-            font.pointSize: pointSize
-            color: fontColor
-        }
-
-
-        //показывает создан ли объект
-        Rectangle {
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            width: menuHeight
-            height: menuHeight
-            color: menuColor
-            radius: menuRadius
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                source: createBlockPPO.createBlock =="yes" ? "file:/pract_project/task2-1/yes.png" : "file:/pract_project/task2-1/no.png"
-                anchors.horizontalCenter: parent.horizontalCenter
-                rotation: 0
-            }
-        }
-
-        MouseArea
-        {
-            anchors.fill: parent
-            onClicked:
-            {
-
-                if(createBlockPPO.createBlock == "no") {
-                    createFunckBlock( "PPO", "ППО" )
-                    createBlockPPO.createBlock = "yes"
-                }
-
-            }
-        }
-    }
-
-    //создание БАППД
-    Rectangle {
-        id: createBlockBAPPD
-        width: menuWidth
-        height: menuHeight
-        color: menuColor
-        radius: menuRadius
-        y: (menuHeight + margins)*3
-
-        property string createBlock:  "no"
-
-        Text {
-            width: parent.width - menuHeight
-            height: parent.height
-            text: "Создать БАППД"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.family: fontFamily
-            font.pointSize: pointSize
-            color: fontColor
-        }
-
-
-        //показывает создан ли объект
-        Rectangle {
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            width: menuHeight
-            height: menuHeight
-            color: menuColor
-            radius: menuRadius
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                source: createBlockBAPPD.createBlock =="yes" ? "file:/pract_project/task2-1/yes.png" : "file:/pract_project/task2-1/no.png"
-                anchors.horizontalCenter: parent.horizontalCenter
-                rotation: 0
-            }
-        }
-
-        MouseArea
-        {
-            anchors.fill: parent
-            onClicked:
-            {
-
-                if(createBlockBAPPD.createBlock == "no") {
-                    createFunckBlock("BAPPD", "БАППД" )
-                    createBlockBAPPD.createBlock = "yes"
-                }
-
-            }
-        }
-    }
-
-    //выравнять объекты
-    Rectangle {
-        width: menuWidth
-        height: menuHeight
-        color: menuColor
-        radius: menuRadius
-        y: parent.height - menuHeight - margins
-
-        Text {
-            width: parent.width
-            height: parent.height
-            text: "Упорядочить"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.family: fontFamily
-            font.pointSize: pointSize
-            color: fontColor
-        }
-
-        MouseArea
-        {
-            anchors.fill: parent
-            onClicked:
-            {
-
-                let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
-                if(PPU !== null) {
-                    PPU.data.x = margins
-                    PPU.data.y = scene.height - margins - PPU.data.height
-                }
-
-                let PPO = find(funckBlocks, function(item) { return item.id === "PPO" })
-                if(PPO !== null) {
-                    PPO.data.x = scene.width - margins - PPO.data.width
-                    PPO.data.y = scene.height - margins - PPO.data.height
-                }
-
-                let BASI = find(funckBlocks, function(item) { return item.id === "BASI" })
-                if(BASI !== null) {
-                    BASI.data.x = scene.width/2 - margins/2 - BASI.data.width
-                    BASI.data.y = margins
-                }
-
-                let BAPPD = find(funckBlocks, function(item) { return item.id === "BAPPD" })
-                if(BAPPD!== null) {
-                    BAPPD.data.x = scene.width/2 + margins/2
-                    BAPPD.data.y = margins
-                }
-
-                for(let i = 0; i < connectFunckBlock.count; i++){
-                    let firstNode = connectFunckBlock.get(i).firstNode
-                    let secondNode = connectFunckBlock.get(i).secondNode
-                    let connect = connectFunckBlock.get(i).connect
-
-                    connect.x1 = firstNode.x + firstNode.width/2
-                    connect.y1 = firstNode.y + firstNode.height/2
-                    connect.x2 = secondNode.x + firstNode.width/2
-                    connect.y2 = secondNode.y + firstNode.height/2
-
-                }
-            }
-        }
-    }
-
-    //показать связи
-    Rectangle {
-        id: conn
-        width: menuWidth
-        height: menuHeight
-        color: menuColor
-        radius: menuRadius
-        y: parent.height - (menuHeight + margins)*2
-        property bool visibleConnect: true
-        Text {
-            width: parent.width
-            height: parent.height
-            text: conn.visibleConnect?"Скрыть связи":"Показать связи"
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.family: fontFamily
-            font.pointSize: pointSize
-            color: fontColor
-        }
-
-        MouseArea
-        {
-            anchors.fill: parent
-            onClicked:
-            { //отоброжение свзяей
-
-                if(conn.visibleConnect){
-                    conn.visibleConnect = false
-                    for(let i = 0; i < connectFunckBlock.count; i++){
-                        connectFunckBlock.get(i).connect.visible = false
+                childRec.onClick.connect(function(){
+                    if(createBlockPPU == "no") {
+                        createFunckBlock("PPU", "ППУ", Param.iconPPUDark )
+                        createBlockPPU = "yes"
                     }
                 }
-                else{
-                    for(let i = 0; i < connectFunckBlock.count; i++){
+                )
 
+
+                let childRec1 = component.createObject(menu)
+                childRec1.x = parent.x + Param.margin32
+                childRec1.y = parent.y + Param.margin32 +Param.margin24 +Param.buttonSmallHeight
+                childRec1.itemText = "Отобразить ППО"
+                childRec1.itemTextOnClick = "Скрыть БАСИ"
+
+                childRec1.onClick.connect(function(){
+                    if(createBlockBASI == "no") {
+                        createFunckBlock("BASI", "БАСИ", Param.iconBASIDark )
+                        createBlockBASI = "yes"
+                    }
+                }
+                )
+
+                let childRec2 = component.createObject(menu)
+                childRec2.x = parent.x + Param.margin32
+                childRec2.y = parent.y + Param.margin32 +Param.margin24*2 +Param.buttonSmallHeight*2
+                childRec2.itemText = "Отобразить БАППД"
+                childRec2.itemTextOnClick = "Скрыть БАППД"
+
+                childRec2.onClick.connect(function(){
+                    if(createBlockBAPPD == "no") {
+                        createFunckBlock("BAPPD", "БАППД", Param.iconBAPPDDark )
+                        createBlockBAPPD = "yes"
+                    }
+                }
+                )
+
+                let childRec3 = component.createObject(menu)
+                childRec3.x = parent.x + Param.margin32
+                childRec3.y = parent.y + Param.margin32 +Param.margin24*3 +Param.buttonSmallHeight*3
+                childRec3.itemText = "Отобразить ППО"
+                childRec3.itemTextOnClick = "Скрыть ППО"
+
+                childRec3.onClick.connect(function(){
+                    if(createBlockPPO == "no") {
+                        createFunckBlock("PPO", "ППО", Param.iconPPODark )
+                        createBlockPPO = "yes"
+                    }
+                }
+                )
+            }
+        }
+    }
+
+    //тени
+    DropShadow {
+        anchors.fill: menu
+        horizontalOffset: Param.horizOffset
+        verticalOffset: Param.verticOffset
+        radius: Param.mainRadius
+        samples: Param.mainSamples
+        color: darkTheme?Param.dDropShadowColor:Param.lDropShadowColor
+        source: menu
+    }
+
+    //меню для отоброжения связей и расположения
+    Rectangle {
+        id: menu2
+        color: mainWindow.color
+        width: Param.buttonBigWidth
+        height: Param.margin32 + Param.buttonBigHeight*2
+        y: mainWindow.height - Param.margin32 - Param.margin80 - Param.buttonBigHeight*2
+        x: Param.margin80
+        radius: Param.elemRadius
+        z: -1
+        property bool visibleConnect: true
+        Component.onCompleted: {
+            let component = Qt.createComponent("bigButton.qml");
+            if (component.status === Component.Ready) {
+                let childRec4 = component.createObject(menu2)
+                childRec4.x = parent.x
+                childRec4.y = parent.y
+                childRec4.itemText = "Показать связи"
+                childRec4.itemTextOnClick = "Скрыть связи"
+
+                childRec4.onClick.connect(function(){
+                    if(menu2.visibleConnect){
+                        menu2.visibleConnect = false
+                        for(let i = 0; i < connectFunckBlock.count; i++){
+                            connectFunckBlock.get(i).connect.visible = false
+                        }
+                    }
+                    else{
+                        for(let i = 0; i < connectFunckBlock.count; i++){
+
+                            let firstNode = connectFunckBlock.get(i).firstNode
+                            let secondNode = connectFunckBlock.get(i).secondNode
+                            let connect = connectFunckBlock.get(i).connect
+
+                            connect.x1 = firstNode.x + firstNode.width/2
+                            connect.y1 = firstNode.y + firstNode.height/2
+                            connect.x2 = secondNode.x + firstNode.width/2
+                            connect.y2 = secondNode.y + firstNode.height/2
+                            connectFunckBlock.get(i).connect.visible = true
+
+                        }
+                        menu2.visibleConnect = true
+                    }
+                })
+
+
+                let childRec5 = component.createObject(menu2)
+                childRec5.x = parent.x
+                childRec5.y = parent.y + Param.margin32 + Param.buttonBigHeight
+                childRec5.itemText = "Упорядочить"
+                childRec5.itemTextOnClick = "Упорядочить"
+                childRec5.onClick.connect(function(){
+                    let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
+                    if(PPU !== null) {
+                        PPU.data.x = Param.margin48
+                        PPU.data.y = scene.height - Param.margin48 - PPU.data.height
+                    }
+
+                    let PPO = find(funckBlocks, function(item) { return item.id === "PPO" })
+                    if(PPO !== null) {
+                        PPO.data.x = scene.width - Param.margin48 - PPO.data.width
+                        PPO.data.y = scene.height - Param.margin48 - PPO.data.height
+                    }
+
+                    let BASI = find(funckBlocks, function(item) { return item.id === "BASI" })
+                    if(BASI !== null) {
+                        BASI.data.x = scene.width/2 - Param.margin48/2 - BASI.data.width
+                        BASI.data.y = Param.margin48
+                    }
+
+                    let BAPPD = find(funckBlocks, function(item) { return item.id === "BAPPD" })
+                    if(BAPPD!== null) {
+                        BAPPD.data.x = scene.width/2 + Param.margin48/2
+                        BAPPD.data.y = Param.margin48
+                    }
+
+                    for(let i = 0; i < connectFunckBlock.count; i++){
                         let firstNode = connectFunckBlock.get(i).firstNode
                         let secondNode = connectFunckBlock.get(i).secondNode
                         let connect = connectFunckBlock.get(i).connect
@@ -437,13 +338,9 @@ Window {
                         connect.x2 = secondNode.x + firstNode.width/2
                         connect.y2 = secondNode.y + firstNode.height/2
 
-                        connectFunckBlock.get(i).connect.visible = true
-
                     }
-                    conn.visibleConnect = true
-
                 }
-
+                )
 
             }
         }

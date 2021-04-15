@@ -1,5 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QtQml>
 
 int main(int argc, char *argv[])
 {
@@ -8,6 +9,9 @@ int main(int argc, char *argv[])
 #endif
 
     QGuiApplication app(argc, argv);
+
+    // Регистрируем qml файл через указание его пути.
+       qmlRegisterSingletonType(QUrl("qrc:/parameters.qml"), "Param", 1, 0, "Param");
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
