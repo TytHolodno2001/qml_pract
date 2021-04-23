@@ -262,7 +262,7 @@ Window {
                     else if(createBlockPPU == "yes"){
                         let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
                         PPU.data.visible = false
-                        visConnectNO("ППУ",)
+                        visConnectNO("ППУ")
                         createBlockPPU = "no-vis"
                     }
                     else {
@@ -270,6 +270,9 @@ Window {
                         PPU.data.visible = true
                         visConnect("ППУ")
                         createBlockPPU = "yes"
+                    }
+                    if(menu2.visibleConnect === false){
+                        visConnectNO("ППУ")
                     }
                 }
                 )
@@ -301,6 +304,9 @@ Window {
                         visConnect("БАСИ")
                         createBlockBASI = "yes"
                     }
+                    if(menu2.visibleConnect === false){
+                        visConnectNO("БАСИ")
+                    }
                 }
                 )
 
@@ -330,6 +336,9 @@ Window {
                         visConnect("БАППД")
                         createBlockBAPPD = "yes"
                     }
+                    if(menu2.visibleConnect === false){
+                        visConnectNO("БАППД")
+                    }
                 }
                 )
 
@@ -358,6 +367,9 @@ Window {
                         PPU.data.visible = true
                         visConnect("ППО")
                         createBlockPPO = "yes"
+                    }
+                    if(menu2.visibleConnect === false){
+                        visConnectNO("ППО")
                     }
                 }
                 )
