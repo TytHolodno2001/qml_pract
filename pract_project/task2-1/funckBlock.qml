@@ -23,8 +23,15 @@ Rectangle{
     property int menuPointSize: Param.textButtonSize
     property string click: "no"
     property string createBlock:  "no"
+
+    //текст на объекте
     property string itemText
+
+    //иконка объекта
     property string icon
+
+    // для добавления в меню дургих пунктов
+    property var itemComp
 
     property int dragMinX: 0
     property int dragMaxX: 0
@@ -32,6 +39,9 @@ Rectangle{
     property int dragMaxY: 0
 
     signal positionChange(double x, double y, string itemText)
+    signal menuClose()
+
+
     z:3
     Drag.active:dragArea.drag.active
     MouseArea {
@@ -81,6 +91,10 @@ Rectangle{
                 parent.border.width = Param.sizeFrame
                 parent.border.color = Param.accentСolor1}
             onReleased:{
+                themeChange.connect(function(){
+                    parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                    strelka.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                })
                 parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 strelka.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 parent.border.width = 0
@@ -137,9 +151,9 @@ Rectangle{
             }
             vis: false
             PropertyAnimation { id: animation_item_open; target: itemMenu; property: "height"; to: (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin ; duration:600 }
-            PropertyAnimation { id: animation_item_open_up; target: itemMenu; property: "y"; to: itemMenu.y - ((dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin + dragRect.menuHeight) ; duration:600 }
+            PropertyAnimation { id: animation_item_open_up; target: itemMenu; property: "y"; to: menu.y - ((dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin) ; duration:600 }
             PropertyAnimation { id: animation_item_close; target: itemMenu; property: "height"; to: 0 ; duration:600 }
-            PropertyAnimation { id: animation_item_close_up; target: itemMenu; property: "y"; to: itemMenu.y + ((dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin + dragRect.menuHeight) ; duration:600 }
+            PropertyAnimation { id: animation_item_close_up; target: itemMenu; property: "y"; to: menu.y + menuHeight ; duration:600 }
             PropertyAnimation { id: arrow_img_rotate; target: arrow_img; property: "rotation"; to: arrow_img.rotation + 180; duration: 600 }
 
             Timer {
@@ -149,13 +163,18 @@ Rectangle{
             }
 
             MouseArea {
+                id: strelka_area
                 property bool openDown
+                property bool openFirst: true
                 anchors.fill: parent
                 onClicked: {
-                    if (strelka.vis == false) {
 
+                    if (openFirst) {
+                        listItem.append(itemComp)
+                        openFirst = !openFirst}
+
+                    if (strelka.vis == false) {
                         itemMenu.visible = true
-                        console.log(itemMenu.y)
                         if(dragRect.y < scene.height/2){
                             animation_item_open.running = true
                             openDown = true
@@ -169,7 +188,7 @@ Rectangle{
                         strelka.vis = true
                     }
                     else {
-
+                        menuClose()
                         if(openDown){
                             animation_item_close.running = true
                         }
@@ -189,7 +208,12 @@ Rectangle{
 
                 }
                 onPressed: strelka.color  = darkTheme?Param.delemThirdColor:Param.lelemThirdColor
-                onReleased: strelka.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                onReleased:{
+                    themeChange.connect(function(){
+                        parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                    })
+                    strelka.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                }
             }
         }
     }
@@ -284,6 +308,9 @@ Rectangle{
                         parent.border.width = Param.sizeFrame
                         parent.border.color = Param.accentСolor1}
                     onReleased:{
+                        themeChange.connect(function(){
+                            parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                        })
                         parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                         parent.border.width = 0
                     }
@@ -343,6 +370,9 @@ Rectangle{
                         parent.border.width = Param.sizeFrame
                         parent.border.color = Param.accentСolor1}
                     onReleased:{
+                        themeChange.connect(function(){
+                            parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                        })
                         parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                         parent.border.width = 0
                     }
@@ -380,23 +410,15 @@ Rectangle{
             ListModel {
                 id:listItem
 
-                ListElement {
-                    name: "Elem1"
-                    stat: "yes"
-                }
-                ListElement {
-                    name: "Elem2"
-                    stat: "no"
-                }
-                ListElement {
-                    name: "Elem2"
-                    stat: "no"
+                Component.onCompleted: {
+
                 }
             }
 
             Component {
                 id:delItem
                 Rectangle {
+
                     width: dragRect.itemWidth
                     height: dragRect.itemHeight
                     anchors.right: itemMenu.right
@@ -410,8 +432,8 @@ Rectangle{
                         color: dragRect.item
 
                         radius: dragRect.menuRadius
-                        border.width: stat=="yes" ? Param.sizeFrame: 0
-                        border.color: Param.accentСolor1
+                        border.width: Param.sizeFrame
+                        border.color: stat=="yes" ? Param.accentСolor1:Param.accentСolor2
 
                         Text{
                             width: parent.width - parent.height
@@ -438,13 +460,15 @@ Rectangle{
 
                             Image {
                                 anchors.verticalCenter: parent.verticalCenter
-                                source: stat=="yes" ? Param.iconStateActive : (darkTheme?Param.iconStateDark:Param.iconStateLight)
+                                source: stat=="yes" ? Param.iconStateActive : Param.iconStateWrong
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 rotation: 0
                             }
                         }
 
                         MouseArea {
+
+                            property bool create: false
                             anchors.fill: parent
                             hoverEnabled : true
 
@@ -454,8 +478,8 @@ Rectangle{
                                 parent.border.color = Param.accentСolor3
                             }
                             onExited:{
-                                parent.border.width = stat=="yes" ? Param.sizeFrame: 0
-                                parent.border.color = Param.accentСolor1
+                                parent.border.width = Param.sizeFrame
+                                parent.border.color = stat=="yes" ? Param.accentСolor1 : Param.accentСolor2
                             }
 
                             //при клике
@@ -465,8 +489,67 @@ Rectangle{
                                 parent.border.width = Param.sizeFrame
                                 parent.border.color = Param.accentСolor1}
                             onReleased:{
+                                themeChange.connect(function(){
+                                    parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                                })
                                 parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                                 parent.border.width = 0
+                            }
+
+
+                            onClicked:{
+                                if(!create) {
+                                    let component =
+                                        Qt.createComponent("info.qml");
+                                    if (component.status === Component.Ready) {
+                                        var child= component.createObject(dragRect);
+                                        //открывается справа или слева
+                                        if(dragRect.x > scene.width - (dragRect.itemMargin*3 + dragRect.itemWidth) - Param.buttonSmallWidth)
+                                        {child.x = -dragRect.itemMargin*3 - Param.buttonSmallWidth}
+                                        else
+                                        {child.x = dragRect.itemMargin*3 + dragRect.itemWidth}
+                                        //открывается напротив пункта или выше
+
+
+                                        if(strelka_area.openDown){
+                                            if(dragRect.y + Param.fBHeight + dragRect.itemHeight*(number) + dragRect.itemMargin * (number+1) + Param.itemCompHeight > scene.height) {
+                                                child.y = Param.fBHeight + dragRect.itemHeight*(listItem.count +1)+ dragRect.itemMargin * (listItem.count+2) - Param.itemCompHeight
+                                            }
+                                            else{
+                                                child.y = Param.fBHeight + dragRect.itemHeight*(number) + dragRect.itemMargin * (number+1)
+                                            }
+                                        }
+                                        else {
+                                            if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + Param.itemCompHeight > scene.height) {
+                                                child.y = -Param.itemCompHeight + Param.fBHeight
+                                            }
+                                            else{
+                                                child.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number)+1)
+                                            }
+
+                                        }
+
+
+
+                                        child.text = text
+                                        child.state_text = state_text
+                                        child.title_text = name
+
+                                        create = true
+
+                                        menuClose.connect(function(){
+                                            child.destroy()
+                                            create = false
+                                        })
+
+                                        child.close.connect(function(){
+                                            child.destroy()
+                                            create = false
+                                        })
+
+                                    }
+                                }
+
                             }
                         }
                     }
@@ -481,16 +564,6 @@ Rectangle{
                     }
 
                 }
-
-                //                DropShadow {
-                //                    anchors.fill: itemOfMenu
-                //                    horizontalOffset: Param.horizOffset
-                //                    verticalOffset: Param.verticOffset
-                //                    radius: Param.mainRadius
-                //                    samples: Param.mainSamples
-                //                    color: Param.dDropShadowColor
-                //                    source: itemOfMenu
-                //                }
 
             }
 

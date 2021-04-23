@@ -10,7 +10,6 @@ Item {
     signal onClick();
     Rectangle {
         id:smallButton
-
         width: Param.buttonSmallWidth
         height: Param.buttonSmallHeight
         color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
@@ -21,13 +20,14 @@ Item {
             height: parent.height
             anchors.left: parent.left;
             anchors.leftMargin:  Param.margin32
-            text: itemText
+            text: click == "yes"?itemTextOnClick:itemText
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             font.family: Param.textFontFamily
             font.pointSize: Param.textButtonSize
             color: darkTheme?Param.dtextColor1:Param.ltextColor1
         }
+
 
         MouseArea {
             id: mouseArea
@@ -37,22 +37,38 @@ Item {
             // при наведении
             onEntered:{
                 smallButton.border.width = Param.sizeFrame
-                smallButton.border.color = click == "yes"?Param.accentСolor1:Param.accentСolor3
+                smallButton.border.color = Param.accentСolor3
             }
             onExited:{
                 smallButton.border.width = click == "yes"? Param.sizeFrame: 0
+                smallButton.border.color = Param.accentСolor1
             }
 
             //при клике
-            onPressed:smallButton.color = darkTheme?Param.delemThirdColor:Param.lelemThirdColor
-            onReleased: smallButton.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+            onPressed:{
+
+                parent.color = darkTheme?Param.delemThirdColor:Param.lelemThirdColor
+            }
+            onReleased:{
+                themeChange.connect(function(){
+
+                    parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                })
+                parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+            }
 
             //после клика
             onClicked:
             {
-                smallButton.border.width = Param.sizeFrame
-                smallButton.border.color = Param.accentСolor1
-                click = "yes"
+                if(click == "no") {
+                    smallButton.border.width = Param.sizeFrame
+                    smallButton.border.color = Param.accentСolor1
+                    click = "yes"
+                }
+                else {
+                    smallButton.border.width = 0
+                    click = "no"
+                }
                 onClick()
             }
         }
@@ -70,7 +86,7 @@ Item {
 
             Image {
                 anchors.verticalCenter: parent.verticalCenter
-                source: click =="yes" ? Param.iconStateActive : (darkTheme?Param.iconStateDark:Param.iconStateLight)
+                source: click =="yes" ? Param.iconMinus : (darkTheme?Param.iconPlusDark:Param.iconPlusLight)
                 anchors.horizontalCenter: parent.horizontalCenter
                 rotation: 0
             }

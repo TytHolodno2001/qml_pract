@@ -11,7 +11,7 @@ Window {
     visible: true
     color: darkTheme? Param.dbgColor:Param.lbgColor
     minimumHeight: Param.margin80*3 + Param.margin48*2 + menu.height + menu2.height
-    minimumWidth: Param.buttonBigWidth + Param.margin80*2 + Param.margin48*3 + Param.fBWidth
+    minimumWidth: Param.buttonBigWidth + Param.margin80*2 + Param.margin48*4 + Param.fBWidth + Param.buttonBigWidth*2
     property bool darkTheme: true
 
     // Перемещение связи за квадратом
@@ -36,7 +36,7 @@ Window {
     }
 
     // функция для кнопок - в параметры передаются настраевымые значения
-    function createFunckBlock(name_eng, name_ru, icon) {
+    function createFunckBlock(name_eng, name_ru, icon, itemComp) {
         //динамическое создание объекта
         let component = Qt.createComponent("funckBlock.qml");
         if (component.status == Component.Ready) {
@@ -50,7 +50,8 @@ Window {
             childRec.itemText = name_ru
             childRec.icon = icon
 
-            // Сигнал
+            childRec.itemComp = itemComp
+
             childRec.positionChange.connect(onPositionChange)
 
             let coun = funckBlocks.count
@@ -66,7 +67,7 @@ Window {
                     childline.y2 = funckBlocks.get(i).data.y + funckBlocks.get(i).data.height/2;
 
                     childline.visible = true
-                    console.log(childline.x, childline.y, childline.x1,childline.y1, childline.x2,childline.y2, childline.rotation)
+
                     connectFunckBlock.append({firstNode: childRec, secondNode: funckBlocks.get(i).data, connect:childline })
                 }
             }
@@ -78,6 +79,64 @@ Window {
     function find(model, criteria) {
         for(var i = 0; i < model.count; ++i) if (criteria(model.get(i))) return model.get(i)
         return null
+    }
+
+    //функция для скрытия связи
+    function visConnectNO(itemText){
+        for(let i = 0; i < connectFunckBlock.count; i++){
+            let firstNode = connectFunckBlock.get(i).firstNode
+            let secondNode = connectFunckBlock.get(i).secondNode
+            let connect = connectFunckBlock.get(i).connect
+            if((firstNode.itemText === itemText )|| secondNode.itemText === itemText){
+                connect.visible = false
+            }
+        }
+    }
+
+    //функция для отоброжения связи
+    function visConnect(itemText){
+        for(let i = 0; i < connectFunckBlock.count; i++){
+            let firstNode = connectFunckBlock.get(i).firstNode
+            let secondNode = connectFunckBlock.get(i).secondNode
+            let connect = connectFunckBlock.get(i).connect
+            if((firstNode.itemText === itemText && secondNode.visible === true)|| (secondNode.itemText === itemText && firstNode.visible === true)){
+                connect.visible = true
+            }
+        }
+    }
+
+    //функция для чтения файлов
+    function readTextFile(file)    {
+        var rawFile = new XMLHttpRequest();
+        var allText
+        rawFile.open("GET", file, false);
+        rawFile.onreadystatechange = function ()
+        {
+            if(rawFile.readyState === 4)
+            {
+                if(rawFile.status === 200 || rawFile.status == 0)
+                {
+                    allText = rawFile.responseText;
+
+                }
+            }
+        }
+        rawFile.send(null);
+        return allText
+    }
+
+    //функция создание компонентов для функционального блока
+    function createItemComp(file) {
+
+        let text = readTextFile(file)
+        let string = text.split('\n')
+        let item = []
+
+        for (let i = 0; i < string.length; i++){
+            let elem = string[i].split(";")
+            item.push({number: elem[0]*1, name: elem[1], stat: elem[2], state_text: elem[3], text: elem[4]})
+        }
+        return item
     }
 
     // тут хранятся созданные блоки
@@ -113,6 +172,7 @@ Window {
         }
     }
 
+    signal themeChange()
     //кнопка для смены цвета темы
     Rectangle{
         id: theme
@@ -127,8 +187,12 @@ Window {
                 let childRec = component.createObject(theme)
                 childRec.onClick.connect(function(){
                     darkTheme = !darkTheme
+                    themeChange()
+
                 })
             }
+
+
         }
     }
 
@@ -177,7 +241,6 @@ Window {
         property string createBlockBASI:  "no"
         property string createBlockBAPPD:  "no"
 
-
         Component.onCompleted: {
             let component = Qt.createComponent("smallButton.qml");
             if (component.status === Component.Ready) {
@@ -188,9 +251,24 @@ Window {
                 childRec.itemText = "Отобразить ППУ"
                 childRec.itemTextOnClick = "Скрыть ППУ"
 
+                //параметры БА
+                let itemCompPPU = createItemComp("file:/pract_project/task2-1/itemCompPPU.txt")
+
                 childRec.onClick.connect(function(){
                     if(createBlockPPU == "no") {
-                        createFunckBlock("PPU", "ППУ", Param.iconPPUDark )
+                        createFunckBlock("PPU", "ППУ", Param.iconPPUDark, itemCompPPU)
+                        createBlockPPU = "yes"
+                    }
+                    else if(createBlockPPU == "yes"){
+                        let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
+                        PPU.data.visible = false
+                        visConnectNO("ППУ",)
+                        createBlockPPU = "no-vis"
+                    }
+                    else {
+                        let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
+                        PPU.data.visible = true
+                        visConnect("ППУ")
                         createBlockPPU = "yes"
                     }
                 }
@@ -200,12 +278,27 @@ Window {
                 let childRec1 = component.createObject(menu)
                 childRec1.x = parent.x + Param.margin32
                 childRec1.y = parent.y + Param.margin32 +Param.margin24 +Param.buttonSmallHeight
-                childRec1.itemText = "Отобразить ППО"
+                childRec1.itemText = "Отобразить БАСИ"
                 childRec1.itemTextOnClick = "Скрыть БАСИ"
+
+                //параметры БА
+                let itemCompBASI = createItemComp("file:/pract_project/task2-1/itemCompBASI.txt")
 
                 childRec1.onClick.connect(function(){
                     if(createBlockBASI == "no") {
-                        createFunckBlock("BASI", "БАСИ", Param.iconBASIDark )
+                        createFunckBlock("BASI", "БАСИ", Param.iconBASIDark, itemCompBASI )
+                        createBlockBASI = "yes"
+                    }
+                    else if(createBlockBASI == "yes"){
+                        let PPU = find(funckBlocks, function(item) { return item.id === "BASI" })
+                        PPU.data.visible = false
+                        visConnectNO("БАСИ")
+                        createBlockBASI = "no-vis"
+                    }
+                    else {
+                        let PPU = find(funckBlocks, function(item) { return item.id === "BASI" })
+                        PPU.data.visible = true
+                        visConnect("БАСИ")
                         createBlockBASI = "yes"
                     }
                 }
@@ -217,9 +310,24 @@ Window {
                 childRec2.itemText = "Отобразить БАППД"
                 childRec2.itemTextOnClick = "Скрыть БАППД"
 
+                //параметры БА
+                let itemCompBAPPD = createItemComp("file:/pract_project/task2-1/itemCompBAPPD.txt")
+
                 childRec2.onClick.connect(function(){
                     if(createBlockBAPPD == "no") {
-                        createFunckBlock("BAPPD", "БАППД", Param.iconBAPPDDark )
+                        createFunckBlock("BAPPD", "БАППД", Param.iconBAPPDDark , itemCompBAPPD)
+                        createBlockBAPPD = "yes"
+                    }
+                    else if(createBlockBAPPD == "yes"){
+                        let PPU = find(funckBlocks, function(item) { return item.id === "BAPPD" })
+                        PPU.data.visible = false
+                        visConnectNO("БАППД")
+                        createBlockBAPPD = "no-vis"
+                    }
+                    else {
+                        let PPU = find(funckBlocks, function(item) { return item.id === "BAPPD" })
+                        PPU.data.visible = true
+                        visConnect("БАППД")
                         createBlockBAPPD = "yes"
                     }
                 }
@@ -231,9 +339,24 @@ Window {
                 childRec3.itemText = "Отобразить ППО"
                 childRec3.itemTextOnClick = "Скрыть ППО"
 
+                //параметры БА
+                let itemCompPPO = createItemComp("file:/pract_project/task2-1/itemCompPPO.txt")
+
                 childRec3.onClick.connect(function(){
                     if(createBlockPPO == "no") {
-                        createFunckBlock("PPO", "ППО", Param.iconPPODark )
+                        createFunckBlock("PPO", "ППО", Param.iconPPODark, itemCompPPO )
+                        createBlockPPO = "yes"
+                    }
+                    else if(createBlockPPO == "yes"){
+                        let PPU = find(funckBlocks, function(item) { return item.id === "PPO" })
+                        PPU.data.visible = false
+                        visConnectNO("ППО")
+                        createBlockPPO= "no-vis"
+                    }
+                    else {
+                        let PPU = find(funckBlocks, function(item) { return item.id === "PPO" })
+                        PPU.data.visible = true
+                        visConnect("ППО")
                         createBlockPPO = "yes"
                     }
                 }
@@ -267,11 +390,13 @@ Window {
         Component.onCompleted: {
             let component = Qt.createComponent("bigButton.qml");
             if (component.status === Component.Ready) {
+                // отоброжение связей
                 let childRec4 = component.createObject(menu2)
                 childRec4.x = parent.x
                 childRec4.y = parent.y
                 childRec4.itemText = "Показать связи"
                 childRec4.itemTextOnClick = "Скрыть связи"
+
 
                 childRec4.onClick.connect(function(){
                     if(menu2.visibleConnect){
@@ -287,11 +412,12 @@ Window {
                             let secondNode = connectFunckBlock.get(i).secondNode
                             let connect = connectFunckBlock.get(i).connect
 
-                            connect.x1 = firstNode.x + firstNode.width/2
-                            connect.y1 = firstNode.y + firstNode.height/2
-                            connect.x2 = secondNode.x + firstNode.width/2
-                            connect.y2 = secondNode.y + firstNode.height/2
-                            connectFunckBlock.get(i).connect.visible = true
+                            if(firstNode.visible && secondNode.visible){
+                                connect.x1 = firstNode.x + firstNode.width/2
+                                connect.y1 = firstNode.y + firstNode.height/2
+                                connect.x2 = secondNode.x + firstNode.width/2
+                                connect.y2 = secondNode.y + firstNode.height/2
+                                connectFunckBlock.get(i).connect.visible = true}
 
                         }
                         menu2.visibleConnect = true
@@ -299,12 +425,15 @@ Window {
                 })
 
 
+                // упорядочить связи
                 let childRec5 = component.createObject(menu2)
                 childRec5.x = parent.x
                 childRec5.y = parent.y + Param.margin32 + Param.buttonBigHeight
                 childRec5.itemText = "Упорядочить"
                 childRec5.itemTextOnClick = "Упорядочить"
                 childRec5.onClick.connect(function(){
+                    //readTextFile("file:/pract_project/task2-1/text.txt");
+
                     let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
                     if(PPU !== null) {
                         PPU.data.x = Param.margin48

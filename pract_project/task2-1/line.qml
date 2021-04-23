@@ -14,7 +14,7 @@ Rectangle {
     visible: true
     z: 1
 
-
+antialiasing: true
     x: x1
     y: y1 - height / 2
 

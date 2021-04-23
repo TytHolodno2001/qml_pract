@@ -7,5 +7,6 @@
         <file>bigButton.qml</file>
         <file>smallButton.qml</file>
         <file>theme.qml</file>
+        <file>info.qml</file>
     </qresource>
 </RCC>

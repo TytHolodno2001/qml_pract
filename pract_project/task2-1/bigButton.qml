@@ -46,7 +46,11 @@ Item {
 
             //при клике
             onPressed: bigButton.color = darkTheme?Param.delemThirdColor:Param.lelemThirdColor
-            onReleased: bigButton.color = darkTheme?Param.delemFirstColor:Param.lelemFirstColor
+            onReleased:{
+                themeChange.connect(function(){
+                    bigButton.color = darkTheme?Param.delemFirstColor:Param.lelemFirstColor
+                })
+                bigButton.color = darkTheme?Param.delemFirstColor:Param.lelemFirstColor}
 
             onClicked:{
                 onClick()

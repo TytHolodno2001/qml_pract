@@ -9,7 +9,8 @@ CONFIG += c++11
 SOURCES += \
         main.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += qml.qrc \
+    image.qrc
 
 TRANSLATIONS += \
     task2-1_ru_RU.ts
@@ -46,3 +47,5 @@ DISTFILES += \
     funckBlock.qml \
     no.png \
     yes.png
+
+HEADERS +=

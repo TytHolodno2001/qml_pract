@@ -25,6 +25,7 @@ Item {
     property int textButtonSize: 12 / 1.5
     property int textFBSize: 38/ 1.5
     property int textTitleSize: 40/ 1.5
+    property int textItemComp: 16 / 1.5
     property string textRegularBold: "Regular"
     property string textLightBold: "Light"
     //отступы
@@ -33,6 +34,7 @@ Item {
     property int margin32: 32/ 1.5
     property int margin24: 24/ 1.5
     property int margin16: 16/ 1.5
+    property int margin8: 8/ 1.5
     //скругление
     property int elemRadius: 16/ 1.5
     //рамки
@@ -64,25 +66,35 @@ Item {
     property int fBSelectHeight: 72/ 1.5
     //кнопка выбора темы
     property int buttonThemeSize: 80/ 1.5
+    //информация в ФБ
+    property int itemCompWidth: 400/ 1.5
+    property int itemCompHeight: 200
+    property int itemCompElemHeight: 24
     //связь
     property int connectWidth: 3/ 1.5
     //иконки
-    property string iconArrowBigBlack: "file:/pract_project/task2-1/ArrowBigBlack"
-    property string iconArrowBigBlue: "file:/pract_project/task2-1/ArrowBigBlue"
-    property string iconArrowBigWhite: "file:/pract_project/task2-1/ArrowBigWhite"
-    property string iconArrowSmallBlack: "file:/pract_project/task2-1/ArrowSmallBlack"
-    property string iconArrowSmallWhite: "file:/pract_project/task2-1/ArrowSmallWhite"
-    property string iconBASIDark: "file:/pract_project/task2-1/BASIDark"
-    property string iconBASILight: "file:/pract_project/task2-1/BASILight"
-    property string iconBAPPDDark: "file:/pract_project/task2-1/BASIDark"
-    property string iconBAPPDLight: "file:/pract_project/task2-1/BASILight"
-    property string iconPPODark: "file:/pract_project/task2-1/PPODark"
-    property string iconPPOLight: "file:/pract_project/task2-1/PPOLight"
-    property string iconPPUDark: "file:/pract_project/task2-1/PPUDark"
-    property string iconPPULight: "file:/pract_project/task2-1/PPULight"
-    property string iconStateActive: "file:/pract_project/task2-1/StateActive"
-    property string iconStateDark: "file:/pract_project/task2-1/StateDark"
-    property string iconStateLight: "file:/pract_project/task2-1/StateLight"
-    property string iconThemeDark: "file:/pract_project/task2-1/ThemeDark"
-    property string iconThemeLight: "file:/pract_project/task2-1/ThemeLight"
+    property string iconArrowBigBlack: "images/ArrowBigBlack.png"
+    property string iconArrowBigBlue: "images/ArrowBigBlue.png"
+    property string iconArrowBigWhite: "images/ArrowBigWhite.png"
+    property string iconArrowSmallBlack: "images/ArrowSmallBlack.png"
+    property string iconArrowSmallWhite: "images/ArrowSmallWhite.png"
+    property string iconBASIDark: "images/BASIDark.png"
+    property string iconBASILight: "images/BASILight.png"
+    property string iconBAPPDDark: "images/BASIDark.png"
+    property string iconBAPPDLight: "images/BASILight.png"
+    property string iconPPODark: "images/PPODark.png"
+    property string iconPPOLight: "images/PPOLight.png"
+    property string iconPPUDark: "images/PPUDark.png"
+    property string iconPPULight: "images/PPULight.png"
+    property string iconStateActive: "images/StateActive.png"
+    property string iconStateDark: "images/StateDark.png"
+    property string iconStateLight: "images/StateLight.png"
+    property string iconThemeDark: "images/ThemeDark.png"
+    property string iconThemeLight: "images/ThemeLight.png"
+    property string iconPlusLight: "images/PlusLight.png"
+    property string iconPlusDark: "images/PlusDark.png"
+    property string iconMinus: "images/Minus.png"
+    property string iconStateWrong:"images/StateWrong.png"
+    property string iconCrossDark:"images/CrossDark.png"
+    property string iconCrossLight:"images/CrossLight.png"
 }
