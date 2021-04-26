@@ -38,6 +38,8 @@ Rectangle{
     property int dragMinY: 0
     property int dragMaxY: 0
 
+    property int allHeight: (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin
+
     signal positionChange(double x, double y, string itemText)
     signal menuClose()
 
@@ -142,6 +144,8 @@ Rectangle{
             radius: dragRect.menuRadius
             anchors.right: parent.right
             anchors.rightMargin: 2
+
+
             Image {
                 id: arrow_img
                 anchors.verticalCenter: parent.verticalCenter
@@ -150,8 +154,8 @@ Rectangle{
                 rotation: 270
             }
             vis: false
-            PropertyAnimation { id: animation_item_open; target: itemMenu; property: "height"; to: (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin ; duration:600 }
-            PropertyAnimation { id: animation_item_open_up; target: itemMenu; property: "y"; to: menu.y - ((dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin) ; duration:600 }
+            PropertyAnimation { id: animation_item_open; target: itemMenu; property: "height"; to: allHeight ; duration:600 }
+            PropertyAnimation { id: animation_item_open_up; target: itemMenu; property: "y"; to: menu.y - (allHeight) ; duration:600 }
             PropertyAnimation { id: animation_item_close; target: itemMenu; property: "height"; to: 0 ; duration:600 }
             PropertyAnimation { id: animation_item_close_up; target: itemMenu; property: "y"; to: menu.y + menuHeight ; duration:600 }
             PropertyAnimation { id: arrow_img_rotate; target: arrow_img; property: "rotation"; to: arrow_img.rotation + 180; duration: 600 }
@@ -168,7 +172,6 @@ Rectangle{
                 property bool openFirst: true
                 anchors.fill: parent
                 onClicked: {
-
                     if (openFirst) {
                         listItem.append(itemComp)
                         openFirst = !openFirst}
@@ -177,11 +180,13 @@ Rectangle{
                         itemMenu.visible = true
                         if(dragRect.y < scene.height/2){
                             animation_item_open.running = true
+                            dragRect.dragMaxY -= allHeight
                             openDown = true
                         }
                         else {
                             animation_item_open.running = true
                             animation_item_open_up.running = true
+                            dragRect.dragMinY += allHeight
                             openDown = false
                         }
                         arrow_img_rotate.running = true
@@ -191,10 +196,12 @@ Rectangle{
                         menuClose()
                         if(openDown){
                             animation_item_close.running = true
+                            dragRect.dragMaxY += allHeight
                         }
                         else {
                             animation_item_close.running = true
                             animation_item_close_up.running = true
+                            dragRect.dragMinY -= allHeight
                         }
 
                         timer.interval = 600
@@ -268,7 +275,7 @@ Rectangle{
 
                 Text {
                     anchors.fill: parent
-                    text: "i1"
+                    text: "Осн"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     font.family: dragRect.fontFamily
@@ -330,7 +337,7 @@ Rectangle{
 
                 Text {
                     anchors.fill: parent
-                    text: "i2"
+                    text: "Рез"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     font.family: dragRect.fontFamily

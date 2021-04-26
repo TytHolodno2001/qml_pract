@@ -10,21 +10,22 @@ Window {
     height: 1000
     visible: true
     color: darkTheme? Param.dbgColor:Param.lbgColor
-    minimumHeight: Param.margin80*3 + Param.margin48*2 + menu.height + menu2.height
-    minimumWidth: Param.buttonBigWidth + Param.margin80*2 + Param.margin48*4 + Param.fBWidth + Param.buttonBigWidth*2
+    minimumHeight: Param.margin80*3 + Param.margin48*3 + menu.height + menu2.height + Param.buttonSmallHeight
+    minimumWidth: Param.margin80*2 + Param.margin48*4 + Param.fBWidth + Param.buttonBigWidth*2
     property bool darkTheme: true
 
     // Перемещение связи за квадратом
     function onPositionChange(x,y,itemText){
+
         for(let i = 0; i < connectFunckBlock.count; i++){
-            if(connectFunckBlock.get(i).firstNode.itemText  == itemText) {
+            if(connectFunckBlock.get(i).firstNode.itemText  === itemText) {
                 let firstNode = connectFunckBlock.get(i).firstNode
                 let secondNode = connectFunckBlock.get(i).secondNode
                 let connect = connectFunckBlock.get(i).connect
                 connect.x1 = firstNode.x + firstNode.width/2
                 connect.y1 = firstNode.y + firstNode.height/2
             }
-            else if(connectFunckBlock.get(i).secondNode.itemText == itemText) {
+            else if(connectFunckBlock.get(i).secondNode.itemText === itemText) {
                 let firstNode = connectFunckBlock.get(i).firstNode
                 let secondNode = connectFunckBlock.get(i).secondNode
                 let connect = connectFunckBlock.get(i).connect
@@ -36,10 +37,10 @@ Window {
     }
 
     // функция для кнопок - в параметры передаются настраевымые значения
-    function createFunckBlock(name_eng, name_ru, icon, itemComp) {
+    function createFunckBlock(name_eng, name_ru, icon, itemComp, statConnect) {
         //динамическое создание объекта
         let component = Qt.createComponent("funckBlock.qml");
-        if (component.status == Component.Ready) {
+        if (component.status === Component.Ready) {
             let childRec = component.createObject(scene);
             childRec.x =  Param.margin48;
             childRec.y =  Param.margin48;
@@ -54,20 +55,28 @@ Window {
 
             childRec.positionChange.connect(onPositionChange)
 
+            scene.widthChange.connect(function(){
+                childRec.dragMinX =  Param.margin48
+                childRec.dragMaxX =  scene.width -  Param.margin48 - childRec.width
+            })
+            scene.heightChange.connect(function(){
+                childRec.dragMinY =  Param.margin48
+                childRec.dragMaxY =  scene.height -  Param.margin48 - childRec.height
+            })
+
             let coun = funckBlocks.count
 
             for( var i = 0; i < coun; i++ ) {
                 //в connect  можно добавить данные о связи между блоками
                 let componentLine = Qt.createComponent("line.qml");
-                if (componentLine.status == Component.Ready) {
+                if (componentLine.status === Component.Ready) {
                     let childline = componentLine.createObject(scene);
                     childline.x1 = childRec.x + childRec.width/2;
                     childline.y1 = childRec.y + childRec.height/2;
                     childline.x2 = funckBlocks.get(i).data.x + funckBlocks.get(i).data.width/2;
                     childline.y2 = funckBlocks.get(i).data.y + funckBlocks.get(i).data.height/2;
-
                     childline.visible = true
-
+                    childline.statConnect = statConnect
                     connectFunckBlock.append({firstNode: childRec, secondNode: funckBlocks.get(i).data, connect:childline })
                 }
             }
@@ -114,7 +123,7 @@ Window {
         {
             if(rawFile.readyState === 4)
             {
-                if(rawFile.status === 200 || rawFile.status == 0)
+                if(rawFile.status === 200 || rawFile.status === 0)
                 {
                     allText = rawFile.responseText;
 
@@ -163,7 +172,7 @@ Window {
             height: parent.height
             anchors.left: parent.left;
             anchors.leftMargin: 0
-            text: "Мониторинг"
+            text: "Оценка работоспособности БА"
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             font.family: Param.textFontFamily
@@ -207,7 +216,17 @@ Window {
         radius: Param.elemRadius
         z: -1
         clip: true
+        signal widthChange()
 
+        onWidthChanged: {
+            widthChange()
+        }
+
+        signal heightChange()
+
+        onHeightChanged: {
+            heightChange()
+        }
         DropArea {
             id: dropArea
             anchors.fill: parent
@@ -255,11 +274,11 @@ Window {
                 let itemCompPPU = createItemComp("file:/pract_project/task2-1/itemCompPPU.txt")
 
                 childRec.onClick.connect(function(){
-                    if(createBlockPPU == "no") {
-                        createFunckBlock("PPU", "ППУ", Param.iconPPUDark, itemCompPPU)
+                    if(createBlockPPU === "no") {
+                        createFunckBlock("PPU", "ППУ", Param.iconPPUDark, itemCompPPU, true)
                         createBlockPPU = "yes"
                     }
-                    else if(createBlockPPU == "yes"){
+                    else if(createBlockPPU === "yes"){
                         let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
                         PPU.data.visible = false
                         visConnectNO("ППУ")
@@ -288,11 +307,11 @@ Window {
                 let itemCompBASI = createItemComp("file:/pract_project/task2-1/itemCompBASI.txt")
 
                 childRec1.onClick.connect(function(){
-                    if(createBlockBASI == "no") {
-                        createFunckBlock("BASI", "БАСИ", Param.iconBASIDark, itemCompBASI )
+                    if(createBlockBASI === "no") {
+                        createFunckBlock("BASI", "БАСИ", Param.iconBASIDark, itemCompBASI, false )
                         createBlockBASI = "yes"
                     }
-                    else if(createBlockBASI == "yes"){
+                    else if(createBlockBASI === "yes"){
                         let PPU = find(funckBlocks, function(item) { return item.id === "BASI" })
                         PPU.data.visible = false
                         visConnectNO("БАСИ")
@@ -320,11 +339,11 @@ Window {
                 let itemCompBAPPD = createItemComp("file:/pract_project/task2-1/itemCompBAPPD.txt")
 
                 childRec2.onClick.connect(function(){
-                    if(createBlockBAPPD == "no") {
-                        createFunckBlock("BAPPD", "БАППД", Param.iconBAPPDDark , itemCompBAPPD)
+                    if(createBlockBAPPD === "no") {
+                        createFunckBlock("BAPPD", "БАППД", Param.iconBAPPDDark , itemCompBAPPD,true)
                         createBlockBAPPD = "yes"
                     }
-                    else if(createBlockBAPPD == "yes"){
+                    else if(createBlockBAPPD === "yes"){
                         let PPU = find(funckBlocks, function(item) { return item.id === "BAPPD" })
                         PPU.data.visible = false
                         visConnectNO("БАППД")
@@ -352,11 +371,11 @@ Window {
                 let itemCompPPO = createItemComp("file:/pract_project/task2-1/itemCompPPO.txt")
 
                 childRec3.onClick.connect(function(){
-                    if(createBlockPPO == "no") {
-                        createFunckBlock("PPO", "ППО", Param.iconPPODark, itemCompPPO )
+                    if(createBlockPPO === "no") {
+                        createFunckBlock("PPO", "ППО", Param.iconPPODark, itemCompPPO, true )
                         createBlockPPO = "yes"
                     }
-                    else if(createBlockPPO == "yes"){
+                    else if(createBlockPPO === "yes"){
                         let PPU = find(funckBlocks, function(item) { return item.id === "PPO" })
                         PPU.data.visible = false
                         visConnectNO("ППО")
@@ -449,25 +468,25 @@ Window {
                     let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
                     if(PPU !== null) {
                         PPU.data.x = Param.margin48
-                        PPU.data.y = scene.height - Param.margin48 - PPU.data.height
+                        PPU.data.y = PPU.data.dragMaxY
                     }
 
                     let PPO = find(funckBlocks, function(item) { return item.id === "PPO" })
                     if(PPO !== null) {
                         PPO.data.x = scene.width - Param.margin48 - PPO.data.width
-                        PPO.data.y = scene.height - Param.margin48 - PPO.data.height
+                        PPO.data.y = PPO.data.dragMaxY
                     }
 
                     let BASI = find(funckBlocks, function(item) { return item.id === "BASI" })
                     if(BASI !== null) {
                         BASI.data.x = scene.width/2 - Param.margin48/2 - BASI.data.width
-                        BASI.data.y = Param.margin48
+                        BASI.data.y = BASI.data.dragMinY
                     }
 
                     let BAPPD = find(funckBlocks, function(item) { return item.id === "BAPPD" })
                     if(BAPPD!== null) {
                         BAPPD.data.x = scene.width/2 + Param.margin48/2
-                        BAPPD.data.y = Param.margin48
+                        BAPPD.data.y = BAPPD.data.dragMinY
                     }
 
                     for(let i = 0; i < connectFunckBlock.count; i++){

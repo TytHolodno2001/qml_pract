@@ -6,9 +6,9 @@ Rectangle {
     property real y1
     property real x2
     property real y2
-
+    property bool statConnect
     id: l
-    color: Param.accentСolor1
+    color: statConnect? Param.accentСolor1:Param.accentСolor2
     height: Param.connectWidth
 
     visible: true
