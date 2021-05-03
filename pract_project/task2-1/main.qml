@@ -14,6 +14,7 @@ Window {
     minimumWidth: Param.margin80*2 + Param.margin48*4 + Param.fBWidth + Param.buttonBigWidth*2
     property bool darkTheme: true
 
+
     // Перемещение связи за квадратом
     function onPositionChange(x,y,itemText){
 
@@ -37,7 +38,7 @@ Window {
     }
 
     // функция для кнопок - в параметры передаются настраевымые значения
-    function createFunckBlock(name_eng, name_ru, icon, itemComp, statConnect) {
+    function createFunckBlock(name_eng, name_ru, icon, itemComp) {
         //динамическое создание объекта
         let component = Qt.createComponent("funckBlock.qml");
         if (component.status === Component.Ready) {
@@ -51,7 +52,43 @@ Window {
             childRec.itemText = name_ru
             childRec.icon = icon
 
-            childRec.itemComp = itemComp
+            if (itemComp === 0){
+                let componentError = Qt.createComponent("errorInfo.qml");
+                if (componentError.status === Component.Ready) {
+                    let child = componentError.createObject(mainWindow);
+                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                    child.desc_error = "Отсутсвует файл с компонентами для " + name_ru
+                    child.title_error = "ОШИБКА"
+
+                }
+                childRec.visStrelka = false
+            }
+            else if (itemComp === 1){
+                let componentError = Qt.createComponent("errorInfo.qml");
+                if (componentError.status === Component.Ready) {
+                    let child = componentError.createObject(mainWindow);
+                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                    child.desc_error = "Файл с компонентами для " + name_ru + " содержит некорректные данные"
+                    child.title_error = "ОШИБКА"
+
+                }
+                childRec.visStrelka = false
+            }
+            else{
+                if(itemComp.select == true){
+                    childRec.itemComp = itemComp.item
+                    childRec.itemComp1 = itemComp.item1
+                    childRec.selectItemVis = true
+                    childRec.itemComp1Text = itemComp.itemText1
+                    childRec.itemCompText = itemComp.itemText
+                }
+                else {
+                    childRec.itemComp = itemComp.item
+                    childRec.selectItemVis = false
+                }
+            }
 
             childRec.positionChange.connect(onPositionChange)
 
@@ -66,20 +103,68 @@ Window {
 
             let coun = funckBlocks.count
 
-            for( var i = 0; i < coun; i++ ) {
-                //в connect  можно добавить данные о связи между блоками
-                let componentLine = Qt.createComponent("line.qml");
-                if (componentLine.status === Component.Ready) {
-                    let childline = componentLine.createObject(scene);
-                    childline.x1 = childRec.x + childRec.width/2;
-                    childline.y1 = childRec.y + childRec.height/2;
-                    childline.x2 = funckBlocks.get(i).data.x + funckBlocks.get(i).data.width/2;
-                    childline.y2 = funckBlocks.get(i).data.y + funckBlocks.get(i).data.height/2;
-                    childline.visible = true
-                    childline.statConnect = statConnect
-                    connectFunckBlock.append({firstNode: childRec, secondNode: funckBlocks.get(i).data, connect:childline })
+
+            //про связи
+            let connects = readTextFile("file:/pract_project/task2-1/connect.txt")
+            if(connects == "") {
+                let componentError = Qt.createComponent("errorInfo.qml");
+                if (componentError.status === Component.Ready) {
+                    let child = componentError.createObject(mainWindow);
+                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                    child.desc_error = "Отсутсвует файл с информацией о связях"
+                    child.title_error = "ОШИБКА"
                 }
             }
+            else {
+                let string = connects.split(';')
+                for( var i = 0; i < coun; i++ ) {
+
+
+                    for (let j = 0; j < string.length; j++){
+                        let elem = string[j].split("-")
+                        if((elem[0] == name_ru && elem[1] == funckBlocks.get(i).data.itemText)|| (elem[0] == funckBlocks.get(i).data.itemText && elem[1] == name_ru)){
+                            if(elem[2] == "1") {
+                                //в connect  можно добавить данные о связи между блоками
+                                let componentLine = Qt.createComponent("line.qml");
+                                if (componentLine.status === Component.Ready) {
+                                    let childline = componentLine.createObject(scene);
+                                    childline.x1 = childRec.x + childRec.width/2;
+                                    childline.y1 = childRec.y + childRec.height/2;
+                                    childline.x2 = funckBlocks.get(i).data.x + funckBlocks.get(i).data.width/2;
+                                    childline.y2 = funckBlocks.get(i).data.y + funckBlocks.get(i).data.height/2;
+
+
+                                    childline.statConnect = true
+
+                                    if(funckBlocks.get(i).data.visible == false) childline.visible = false
+                                    else childline.visible = true
+                                    connectFunckBlock.append({firstNode: childRec, secondNode: funckBlocks.get(i).data, connect:childline })}
+                            }
+                            else if(elem[2] == "2"){
+                                //в connect  можно добавить данные о связи между блоками
+                                let componentLine = Qt.createComponent("line.qml");
+                                if (componentLine.status === Component.Ready) {
+                                    let childline = componentLine.createObject(scene);
+                                    childline.x1 = childRec.x + childRec.width/2;
+                                    childline.y1 = childRec.y + childRec.height/2;
+                                    childline.x2 = funckBlocks.get(i).data.x + funckBlocks.get(i).data.width/2;
+                                    childline.y2 = funckBlocks.get(i).data.y + funckBlocks.get(i).data.height/2;
+                                    if(funckBlocks.get(i).data.visible == false) childline.visible = false
+                                    else childline.visible = true
+
+                                    childline.statConnect = false
+                                    connectFunckBlock.append({firstNode: childRec, secondNode: funckBlocks.get(i).data, connect:childline })}
+
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+
+
             funckBlocks.append({id:name_eng,data:childRec})
         }
     }
@@ -116,8 +201,8 @@ Window {
 
     //функция для чтения файлов
     function readTextFile(file)    {
-        var rawFile = new XMLHttpRequest();
-        var allText
+        let rawFile = new XMLHttpRequest();
+        let allText = ""
         rawFile.open("GET", file, false);
         rawFile.onreadystatechange = function ()
         {
@@ -136,16 +221,60 @@ Window {
 
     //функция создание компонентов для функционального блока
     function createItemComp(file) {
-
+        let err = false
         let text = readTextFile(file)
-        let string = text.split('\n')
-        let item = []
-
-        for (let i = 0; i < string.length; i++){
-            let elem = string[i].split(";")
-            item.push({number: elem[0]*1, name: elem[1], stat: elem[2], state_text: elem[3], text: elem[4]})
+        if (text === ""){
+            return 0
         }
-        return item
+        else{
+            let string = text.split('\n')
+            let item = []
+            let item1 = []
+            if(string[0].includes('!')){
+                for (let i = 1; i < string.length; i++){
+                    let elem = string[i].split(";")
+                    //ПРОВЕРКА ФАЙЛА НА КОРРЕКТНОСТЬ ДАННЫХ
+                    //                if ((elem.length < 5)|| isNaN(elem[0]*1)||(elem[1]=="" )||(elem[3]=="" )||(elem[2]!= "no" && elem[2]!="yes") ) {
+                    //                    err = true
+                    //                    break
+                    //                }
+                    //                else{
+                    if (elem[2] == "info") item.push({number: elem[0]*1, name: elem[1], type: elem[2], stat: elem[3], state_text: elem[4], text: elem[5]})
+                    else if (elem[2] == "table") item.push({number: elem[0]*1, name: elem[1], type: elem[2], info: elem[3]})
+                    else if (elem[2] == "table2") item.push({number: elem[0]*1, name: elem[1], type: elem[2], info: elem[3]})
+                    else if (elem[2] == "list") item.push({number: elem[0]*1, name: elem[1], type: elem[2], info: elem[3]})
+                    else if (elem[2] == "items") item.push({number: elem[0]*1, name: elem[1], type: elem[2], info: elem[3]})
+                    //                }
+                }
+                return {select: false, item:item}
+            }
+            else {
+                let selectItem = string[0].split('-')
+                for (let i = 0; i < string.length; i++){
+                    let elem = string[i].split(";")
+                    if( elem[0] == selectItem[0]) {
+                        if (elem[3] == "info") item.push({number: elem[1]*1, name: elem[2], type: elem[3], stat: elem[4], state_text: elem[5], text: elem[6]})
+                        else if (elem[3] == "table") item.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
+                        else if (elem[3] == "table2") item.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
+                        else if (elem[3] == "list") item.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
+                        else if (elem[3] == "items") item.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
+                    }
+                    else{
+                        if (elem[3] == "info") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], stat: elem[4], state_text: elem[5], text: elem[6]})
+                        else if (elem[3] == "table") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
+                        else if (elem[3] == "table2") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
+                        else if (elem[3] == "list") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
+                        else if (elem[3] == "items") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
+                    }
+                }
+
+                return {select: true, item:item, item1:item1, itemText: selectItem[0], itemText1: selectItem[1]}
+            }
+//            if(err){
+//                return 1
+//            }
+
+        }
     }
 
     // тут хранятся созданные блоки
@@ -167,6 +296,7 @@ Window {
         height: Param.margin80*2 + Param.margin48
         width: Param.buttonBigWidth
         color: mainWindow.color
+
         Text {
             width: parent.width
             height: parent.height
@@ -261,6 +391,8 @@ Window {
         property string createBlockBAPPD:  "no"
 
         Component.onCompleted: {
+
+
             let component = Qt.createComponent("smallButton.qml");
             if (component.status === Component.Ready) {
 
@@ -271,11 +403,12 @@ Window {
                 childRec.itemTextOnClick = "Скрыть ППУ"
 
                 //параметры БА
+
                 let itemCompPPU = createItemComp("file:/pract_project/task2-1/itemCompPPU.txt")
 
                 childRec.onClick.connect(function(){
                     if(createBlockPPU === "no") {
-                        createFunckBlock("PPU", "ППУ", Param.iconPPUDark, itemCompPPU, true)
+                        createFunckBlock("PPU", "ППУ", Param.iconPPUDark, itemCompPPU)
                         createBlockPPU = "yes"
                     }
                     else if(createBlockPPU === "yes"){
@@ -308,7 +441,7 @@ Window {
 
                 childRec1.onClick.connect(function(){
                     if(createBlockBASI === "no") {
-                        createFunckBlock("BASI", "БАСИ", Param.iconBASIDark, itemCompBASI, false )
+                        createFunckBlock("BASI", "БАСИ", Param.iconBASIDark, itemCompBASI)
                         createBlockBASI = "yes"
                     }
                     else if(createBlockBASI === "yes"){
@@ -340,7 +473,7 @@ Window {
 
                 childRec2.onClick.connect(function(){
                     if(createBlockBAPPD === "no") {
-                        createFunckBlock("BAPPD", "БАППД", Param.iconBAPPDDark , itemCompBAPPD,true)
+                        createFunckBlock("BAPPD", "БАППД", Param.iconBAPPDDark , itemCompBAPPD)
                         createBlockBAPPD = "yes"
                     }
                     else if(createBlockBAPPD === "yes"){
@@ -372,7 +505,7 @@ Window {
 
                 childRec3.onClick.connect(function(){
                     if(createBlockPPO === "no") {
-                        createFunckBlock("PPO", "ППО", Param.iconPPODark, itemCompPPO, true )
+                        createFunckBlock("PPO", "ППО", Param.iconPPODark, itemCompPPO)
                         createBlockPPO = "yes"
                     }
                     else if(createBlockPPO === "yes"){
@@ -428,10 +561,36 @@ Window {
                 childRec4.itemText = "Показать связи"
                 childRec4.itemTextOnClick = "Скрыть связи"
 
-
                 childRec4.onClick.connect(function(){
                     if(menu2.visibleConnect){
                         menu2.visibleConnect = false
+
+                        let visCon = true
+                        if(connectFunckBlock.count < 1){
+                            visCon = false
+
+                        }
+                        for(let j = 0; j < funckBlocks.count; j++) {
+                            if(funckBlocks.get(j).data.visible == true) {
+                                visCon = true
+                                break
+                            }
+                            else visCon = false
+                        }
+
+                        if(!visCon) {
+                            let componentError = Qt.createComponent("errorInfo.qml");
+                            if (componentError.status === Component.Ready) {
+                                let child = componentError.createObject(mainWindow);
+                                child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                child.desc_error = "В данный момент связи отсутствуют"
+                                child.title_error = "ПРЕДУПРЕЖДЕНИЕ"
+                            }
+
+
+                        }
+
                         for(let i = 0; i < connectFunckBlock.count; i++){
                             connectFunckBlock.get(i).connect.visible = false
                         }
@@ -464,41 +623,67 @@ Window {
                 childRec5.itemTextOnClick = "Упорядочить"
                 childRec5.onClick.connect(function(){
                     //readTextFile("file:/pract_project/task2-1/text.txt");
+                    let visFB = true
 
-                    let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
-                    if(PPU !== null) {
-                        PPU.data.x = Param.margin48
-                        PPU.data.y = PPU.data.dragMaxY
+                    if(funckBlocks.count < 1){
+                        visFB = false
+                    }
+                    else {
+                        for(let i = 0; i < funckBlocks.count; i++) {
+                            if(funckBlocks.get(i).data.visible == true) {
+                                visFB = true
+                                break
+                            }
+                            else visFB = false
+                        }
                     }
 
-                    let PPO = find(funckBlocks, function(item) { return item.id === "PPO" })
-                    if(PPO !== null) {
-                        PPO.data.x = scene.width - Param.margin48 - PPO.data.width
-                        PPO.data.y = PPO.data.dragMaxY
+                    if(!visFB){
+                        let componentError = Qt.createComponent("errorInfo.qml");
+                        if (componentError.status === Component.Ready) {
+                            let child = componentError.createObject(mainWindow);
+                            child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                            child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                            child.desc_error = "В данный момент бортовая аппаратура не отображается"
+                            child.title_error = "ПРЕДУПРЕЖДЕНИЕ"
+                        }
                     }
+                    else {
+                        let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
+                        if(PPU !== null) {
+                            PPU.data.x = Param.margin48
+                            PPU.data.y = PPU.data.dragMaxY
+                        }
 
-                    let BASI = find(funckBlocks, function(item) { return item.id === "BASI" })
-                    if(BASI !== null) {
-                        BASI.data.x = scene.width/2 - Param.margin48/2 - BASI.data.width
-                        BASI.data.y = BASI.data.dragMinY
-                    }
+                        let PPO = find(funckBlocks, function(item) { return item.id === "PPO" })
+                        if(PPO !== null) {
+                            PPO.data.x = scene.width - Param.margin48 - PPO.data.width
+                            PPO.data.y = PPO.data.dragMaxY
+                        }
 
-                    let BAPPD = find(funckBlocks, function(item) { return item.id === "BAPPD" })
-                    if(BAPPD!== null) {
-                        BAPPD.data.x = scene.width/2 + Param.margin48/2
-                        BAPPD.data.y = BAPPD.data.dragMinY
-                    }
+                        let BASI = find(funckBlocks, function(item) { return item.id === "BASI" })
+                        if(BASI !== null) {
+                            BASI.data.x = scene.width/2 - Param.margin48/2 - BASI.data.width
+                            BASI.data.y = BASI.data.dragMinY
+                        }
 
-                    for(let i = 0; i < connectFunckBlock.count; i++){
-                        let firstNode = connectFunckBlock.get(i).firstNode
-                        let secondNode = connectFunckBlock.get(i).secondNode
-                        let connect = connectFunckBlock.get(i).connect
+                        let BAPPD = find(funckBlocks, function(item) { return item.id === "BAPPD" })
+                        if(BAPPD!== null) {
+                            BAPPD.data.x = scene.width/2 + Param.margin48/2
+                            BAPPD.data.y = BAPPD.data.dragMinY
+                        }
 
-                        connect.x1 = firstNode.x + firstNode.width/2
-                        connect.y1 = firstNode.y + firstNode.height/2
-                        connect.x2 = secondNode.x + firstNode.width/2
-                        connect.y2 = secondNode.y + firstNode.height/2
+                        for(let i = 0; i < connectFunckBlock.count; i++){
+                            let firstNode = connectFunckBlock.get(i).firstNode
+                            let secondNode = connectFunckBlock.get(i).secondNode
+                            let connect = connectFunckBlock.get(i).connect
 
+                            connect.x1 = firstNode.x + firstNode.width/2
+                            connect.y1 = firstNode.y + firstNode.height/2
+                            connect.x2 = secondNode.x + firstNode.width/2
+                            connect.y2 = secondNode.y + firstNode.height/2
+
+                        }
                     }
                 }
                 )

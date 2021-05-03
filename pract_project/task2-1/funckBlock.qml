@@ -24,21 +24,29 @@ Rectangle{
     property string click: "no"
     property string createBlock:  "no"
 
+    property bool visStrelka: true
+
     //текст на объекте
     property string itemText
 
     //иконка объекта
     property string icon
 
-    // для добавления в меню дургих пунктов
-    property var itemComp
-
     property int dragMinX: 0
     property int dragMaxX: 0
     property int dragMinY: 0
     property int dragMaxY: 0
 
-    property int allHeight: (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin
+    property bool selectItemVis: true
+
+    // для добавления в меню дургих пунктов
+    property var itemComp
+    property var itemComp1
+
+    property string itemCompText
+    property string itemComp1Text
+
+    property int allHeight:selectItemVis? (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin : (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
 
     signal positionChange(double x, double y, string itemText)
     signal menuClose()
@@ -144,7 +152,7 @@ Rectangle{
             radius: dragRect.menuRadius
             anchors.right: parent.right
             anchors.rightMargin: 2
-
+            visible: visStrelka
 
             Image {
                 id: arrow_img
@@ -224,7 +232,6 @@ Rectangle{
             }
         }
     }
-
     DropShadow {
         anchors.fill: menu
         horizontalOffset: Param.horizOffset
@@ -235,6 +242,7 @@ Rectangle{
         source: menu
     }
 
+
     Rectangle {
         id:itemMenu
         y: dragRect.menuHeight
@@ -244,6 +252,7 @@ Rectangle{
         color: dragRect.back
         radius: dragRect.menuRadius
         visible: false
+        //меню переключателя
         Rectangle {
             id: item1
             width:dragRect.itemWidth
@@ -255,7 +264,7 @@ Rectangle{
             anchors.topMargin: dragRect.itemMargin
             radius: dragRect.menuRadius
             z:1
-
+            visible:selectItemVis
             property bool left_block_vis: true
 
             PropertyAnimation { id: animation_left_block_open; target: left_block; property: "width"; to: Param.fBSelectBigWidth; duration: 200 }
@@ -275,7 +284,7 @@ Rectangle{
 
                 Text {
                     anchors.fill: parent
-                    text: "Осн"
+                    text: itemCompText
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     font.family: dragRect.fontFamily
@@ -287,11 +296,26 @@ Rectangle{
                     anchors.fill: parent
                     onClicked: {
                         if(item1.left_block_vis) {
+                            //                            закрытие левого блока
+                            listItem.clear()
+                            listItem.append(itemComp1)
+
+                            itemMenu.height = selectItemVis? (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin : (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
+                            if(!strelka_area.openDown){
+                                itemMenu.y = -itemMenu.height
+                            }
                             animation_left_block_close.running = true
                             animation_right_block_open.running = true
                             item1.left_block_vis = false
                         }
                         else {
+                            //                            закрытие правого блока
+                            listItem.clear()
+                            listItem.append(itemComp)
+                            itemMenu.height = selectItemVis? (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin : (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
+                            if(!strelka_area.openDown){
+                                itemMenu.y =- itemMenu.height
+                            }
                             animation_left_block_open.running = true
                             animation_right_block_close.running = true
                             item1.left_block_vis = true
@@ -337,7 +361,7 @@ Rectangle{
 
                 Text {
                     anchors.fill: parent
-                    text: "Рез"
+                    text: itemComp1Text
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     font.family: dragRect.fontFamily
@@ -349,11 +373,26 @@ Rectangle{
                     anchors.fill: parent
                     onClicked: {
                         if(item1.left_block_vis) {
+                            //закрытие левого блока
+                            listItem.clear()
+                            listItem.append(itemComp1)
+
+                            itemMenu.height = selectItemVis? (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin : (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
+                            if(!strelka_area.openDown){
+                                itemMenu.y = -itemMenu.height
+                            }
                             animation_left_block_close.running = true
                             animation_right_block_open.running = true
                             item1.left_block_vis = false
                         }
                         else {
+                            //закрытие правого блока
+                            listItem.clear()
+                            listItem.append(itemComp)
+                            itemMenu.height = selectItemVis? (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin : (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
+                            if(!strelka_area.openDown){
+                                itemMenu.y = -itemMenu.height
+                            }
                             animation_left_block_open.running = true
                             animation_right_block_close.running = true
                             item1.left_block_vis = true
@@ -408,7 +447,7 @@ Rectangle{
         Rectangle{
             z:0
             anchors.top: parent.top
-            anchors.topMargin: dragRect.itemHeight + dragRect.itemMargin
+            anchors.topMargin: selectItemVis?dragRect.itemHeight + dragRect.itemMargin : 0
             width: dragRect.itemWidth + dragRect.itemMargin + dragRect.itemMargin
             height: (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
             color: parent.color
@@ -416,10 +455,6 @@ Rectangle{
 
             ListModel {
                 id:listItem
-
-                Component.onCompleted: {
-
-                }
             }
 
             Component {
@@ -440,7 +475,7 @@ Rectangle{
 
                         radius: dragRect.menuRadius
                         border.width: Param.sizeFrame
-                        border.color: stat=="yes" ? Param.accentСolor1:Param.accentСolor2
+                        border.color: type == "info"? (stat=="yes" ? Param.accentСolor1:Param.accentСolor2) :Param.accentСolor1
 
                         Text{
                             width: parent.width - parent.height
@@ -467,7 +502,7 @@ Rectangle{
 
                             Image {
                                 anchors.verticalCenter: parent.verticalCenter
-                                source: stat=="yes" ? Param.iconStateActive : Param.iconStateWrong
+                                source: type == "info"? (stat=="yes" ? Param.iconStateActive : Param.iconStateWrong) : ""
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 rotation: 0
                             }
@@ -486,7 +521,7 @@ Rectangle{
                             }
                             onExited:{
                                 parent.border.width = Param.sizeFrame
-                                parent.border.color = stat=="yes" ? Param.accentСolor1 : Param.accentСolor2
+                                parent.border.color = type == "info"? (stat=="yes" ? Param.accentСolor1:Param.accentСolor2) :Param.accentСolor1
                             }
 
                             //при клике
@@ -503,63 +538,322 @@ Rectangle{
                                 parent.border.width = 0
                             }
 
-
                             onClicked:{
                                 if(!create) {
-                                    let component =
-                                        Qt.createComponent("info.qml");
-                                    if (component.status === Component.Ready) {
-                                        var child= component.createObject(dragRect);
-                                        //открывается справа или слева
-                                        if(dragRect.x > scene.width - (dragRect.itemMargin*3 + dragRect.itemWidth) - Param.buttonSmallWidth)
-                                        {child.x = -dragRect.itemMargin*3 - Param.buttonSmallWidth}
-                                        else
-                                        {child.x = dragRect.itemMargin*3 + dragRect.itemWidth}
-                                        //открывается напротив пункта или выше
-
-
-                                        if(strelka_area.openDown){
-                                            if(dragRect.y + Param.fBHeight + dragRect.itemHeight*(number) + dragRect.itemMargin * (number+1) + Param.itemCompHeight > scene.height) {
-                                                child.y = Param.fBHeight + dragRect.itemHeight*(listItem.count +1)+ dragRect.itemMargin * (listItem.count+2) - Param.itemCompHeight
+                                    let selectHeight = selectItemVis? dragRect.itemHeight + dragRect.itemMargin: 0
+                                    if(type == "info") {
+                                        let component = Qt.createComponent("info.qml");
+                                        if (component.status === Component.Ready) {
+                                            var child= component.createObject(dragRect);
+                                            //открывается справа или слева
+                                            if(dragRect.x > scene.width - (dragRect.itemMargin + Param.fBWidth) - /*ширина элемента*/Param.fBWidth)
+                                                //слева
+                                            {
+                                                child.x = -dragRect.itemMargin - /*ширина элемента*/ Param.fBWidth
                                             }
-                                            else{
-                                                child.y = Param.fBHeight + dragRect.itemHeight*(number) + dragRect.itemMargin * (number+1)
+                                            else
+                                                //справа
+                                            {
+                                                child.x = dragRect.itemMargin + Param.fBWidth
                                             }
+
+                                            //открывается напротив пункта или выше
+
+                                            //список открывается вниз
+                                            if(strelka_area.openDown){
+                                                if(dragRect.y + selectHeight + Param.fBHeight + dragRect.itemHeight*(number -1) + dragRect.itemMargin * (number) + /*высота элемента*/ Param.itemCompHeight > scene.height) {
+                                                    //не влазит
+                                                    child.y = dragRect.itemHeight*(listItem.count)+ dragRect.itemMargin * (listItem.count + 1) + selectHeight + Param.fBHeight - /*высота элемента*/ Param.itemCompHeight
+                                                }
+                                                else{
+                                                    //влазит
+                                                    child.y = Param.fBHeight + dragRect.itemHeight*(number - 1)+ dragRect.itemMargin * (number) + selectHeight
+                                                }
+                                            }
+                                            //cписок открывается наверх
+                                            else {
+                                                if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + /*высота элемента*/ Param.itemCompHeight > scene.height) {
+                                                    //не влазит
+                                                    child.y = Param.fBHeight - /*высота элемента*/ Param.itemCompHeight
+                                                }
+                                                else{
+                                                    child.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number +1))
+                                                }
+
+                                            }
+
+                                            child.text = text
+                                            child.state_text = state_text
+                                            child.title_text = name
+
+                                            create = true
+
+                                            menuClose.connect(function(){
+                                                child.destroy()
+                                                create = false
+                                            })
+
+                                            child.close.connect(function(){
+                                                child.destroy()
+                                                create = false
+                                            })
+
                                         }
-                                        else {
-                                            if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + Param.itemCompHeight > scene.height) {
-                                                child.y = -Param.itemCompHeight + Param.fBHeight
+                                    }
+                                    else if(type == "table"){
+                                        let component = Qt.createComponent("table.qml");
+                                        if (component.status === Component.Ready) {
+                                            let childRec = component.createObject(dragRect)
+                                            let string = info.split('-')
+                                            let rows = []
+                                            for (let i = 0; i < string.length; i++){
+                                                let elem = string[i].split(",")
+                                                rows.push({number: elem[0], tn: elem[1], tk: elem[2], mode: elem[3]})
                                             }
-                                            else{
-                                                child.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number)+1)
+                                            childRec.tableCell = rows
+
+                                            childRec.title = name
+                                            //открывается справа или слева
+                                            if(dragRect.x > scene.width - (dragRect.itemMargin + Param.fBWidth) - /*ширина элемента*/Param.tableWidth)
+                                                //слева
+                                            {
+                                                childRec.x = -dragRect.itemMargin - /*ширина элемента*/ Param.tableWidth
                                             }
+                                            else
+                                                //справа
+                                            {
+                                                childRec.x = dragRect.itemMargin + Param.fBWidth
+                                            }
+
+                                            //список открывается вниз
+                                            if(strelka_area.openDown){
+                                                if(dragRect.y + selectHeight + Param.fBHeight + dragRect.itemHeight*(number -1) + dragRect.itemMargin * (number) + /*высота элемента*/ Param.tableHeight > scene.height) {
+                                                    //не влазит
+                                                    childRec.y = dragRect.itemHeight*(listItem.count)+ dragRect.itemMargin * (listItem.count + 1) + selectHeight + Param.fBHeight - /*высота элемента*/ Param.tableHeight
+                                                }
+                                                else{
+                                                    //влазит
+                                                    childRec.y = Param.fBHeight + dragRect.itemHeight*(number - 1)+ dragRect.itemMargin * (number) + selectHeight
+                                                }
+                                            }
+                                            //cписок открывается наверх
+                                            else {
+                                                if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + /*высота элемента*/ Param.tableHeight> scene.height) {
+                                                    //не влазит
+                                                    childRec.y = Param.fBHeight - /*высота элемента*/ Param.tableHeight
+                                                }
+                                                else{
+                                                    childRec.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number +1))
+                                                }
+
+                                            }
+
+                                            create = true
+
+                                            menuClose.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
+                                            childRec.close.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
 
                                         }
+                                    }
+                                    else if(type == "table2"){
+                                        let component = Qt.createComponent("table2.qml");
+                                        if (component.status === Component.Ready) {
+                                            let childRec = component.createObject(dragRect)
+                                            let string = info.split('-')
+                                            let rows = []
+                                            for (let i = 0; i < string.length; i++){
+                                                let elem = string[i].split(",")
+                                                rows.push({par1: elem[0], par2: elem[1], par3: elem[2]})
+                                            }
+                                            childRec.tableCell = rows
+
+                                            childRec.title = name
+                                            //открывается справа или слева
+                                            if(dragRect.x > scene.width - (dragRect.itemMargin + Param.fBWidth) - /*ширина элемента*/Param.tableSWidth)
+                                                //слева
+                                            {
+                                                childRec.x = -dragRect.itemMargin - /*ширина элемента*/ Param.tableSWidth
+                                            }
+                                            else
+                                                //справа
+                                            {
+                                                childRec.x = dragRect.itemMargin + Param.fBWidth
+                                            }
+
+                                            //список открывается вниз
+                                            if(strelka_area.openDown){
+                                                if(dragRect.y + selectHeight + Param.fBHeight + dragRect.itemHeight*(number -1) + dragRect.itemMargin * (number) + /*высота элемента*/ Param.tableHeight > scene.height) {
+                                                    //не влазит
+                                                    childRec.y = dragRect.itemHeight*(listItem.count)+ dragRect.itemMargin * (listItem.count + 1) + selectHeight + Param.fBHeight - /*высота элемента*/ Param.tableHeight
+                                                }
+                                                else{
+                                                    //влазит
+                                                    childRec.y = Param.fBHeight + dragRect.itemHeight*(number - 1)+ dragRect.itemMargin * (number) + selectHeight
+                                                }
+                                            }
+                                            //cписок открывается наверх
+                                            else {
+                                                if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + /*высота элемента*/ Param.tableHeight> scene.height) {
+                                                    //не влазит
+                                                    childRec.y = Param.fBHeight - /*высота элемента*/ Param.tableHeight
+                                                }
+                                                else{
+                                                    childRec.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number +1))
+                                                }
+
+                                            }
+
+                                            create = true
+
+                                            menuClose.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
+                                            childRec.close.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
+
+                                        }
+                                    }
+                                    else if(type == "list"){
+                                        let component = Qt.createComponent("list.qml");
+                                        if (component.status === Component.Ready) {
+                                            let childRec = component.createObject(dragRect)
+                                            let string = info.split('-')
+                                            let items = []
+                                            for (let i = 0; i < string.length; i++){
+                                                let elem = string[i].split(",")
+                                                items.push({number: elem[0], value: elem[1], statePar: elem[2]})
+                                            }
+                                            childRec.itemComp = items
+                                            childRec.title = name
+                                            //открывается справа или слева
+                                            if(dragRect.x > scene.width - (dragRect.itemMargin + Param.fBWidth) - /*ширина элемента*/Param.listWidth)
+                                                //слева
+                                            {
+                                                childRec.x = -dragRect.itemMargin - /*ширина элемента*/ Param.listWidth
+                                            }
+                                            else
+                                                //справа
+                                            {
+                                                childRec.x = dragRect.itemMargin + Param.fBWidth
+                                            }
+
+                                            //открывается напротив пункта или выше
+
+                                            //список открывается вниз
+                                            if(strelka_area.openDown){
+                                                if(dragRect.y + selectHeight + Param.fBHeight + dragRect.itemHeight*(number -1) + dragRect.itemMargin * (number) + /*высота элемента*/ Param.listHeight > scene.height) {
+                                                    //не влазит
+                                                    childRec.y = dragRect.itemHeight*(listItem.count)+ dragRect.itemMargin * (listItem.count + 1) + selectHeight + Param.fBHeight - /*высота элемента*/ Param.listHeight
+                                                }
+                                                else{
+                                                    //влазит
+                                                    childRec.y = Param.fBHeight + dragRect.itemHeight*(number - 1)+ dragRect.itemMargin * (number) + selectHeight
+                                                }
+                                            }
+                                            //cписок открывается наверх
+                                            else {
+                                                if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + /*высота элемента*/ Param.listHeight > scene.height) {
+                                                    //не влазит
+                                                    childRec.y = Param.fBHeight - /*высота элемента*/ Param.listHeight
+                                                }
+                                                else{
+                                                    childRec.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number +1))
+                                                }
+
+                                            }
 
 
+                                            create = true
 
-                                        child.text = text
-                                        child.state_text = state_text
-                                        child.title_text = name
+                                            menuClose.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
+                                            childRec.close.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
 
-                                        create = true
+                                        }
+                                    }
+                                    else if(type == "items"){
+                                        let component = Qt.createComponent("items.qml");
+                                        if (component.status === Component.Ready) {
+                                            let childRec = component.createObject(dragRect)
+                                            let string = info.split('&')
+                                            let items = []
+                                            for (let i = 0; i < string.length; i++){
+                                                let elem = string[i].split("|")
+                                                items.push({name: elem[0], type: elem[1], statePar: elem[2], info: elem[3]})
+                                            }
+                                            childRec.itemComp = items
+                                            childRec.title = name
+                                            //открывается справа или слева
+                                            //открывается справа или слева
+                                            if(dragRect.x > scene.width - (dragRect.itemMargin + Param.fBWidth) - /*ширина элемента*/Param.itemsWidth)
+                                                //слева
+                                            {
+                                                childRec.x = -dragRect.itemMargin - /*ширина элемента*/ Param.itemsWidth
+                                            }
+                                            else
+                                                //справа
+                                            {
+                                                childRec.x = dragRect.itemMargin + Param.fBWidth
+                                            }
 
-                                        menuClose.connect(function(){
-                                            child.destroy()
-                                            create = false
-                                        })
+                                            //открывается напротив пункта или выше
 
-                                        child.close.connect(function(){
-                                            child.destroy()
-                                            create = false
-                                        })
+                                            //список открывается вниз
+                                            if(strelka_area.openDown){
+                                                if(dragRect.y + selectHeight + Param.fBHeight + dragRect.itemHeight*(number -1) + dragRect.itemMargin * (number) + /*высота элемента*/ Param.itemsHeight > scene.height) {
+                                                    //не влазит
+                                                    childRec.y = dragRect.itemHeight*(listItem.count)+ dragRect.itemMargin * (listItem.count + 1) + selectHeight + Param.fBHeight - /*высота элемента*/ Param.itemsHeight
+                                                }
+                                                else{
+                                                    //влазит
+                                                    childRec.y = Param.fBHeight + dragRect.itemHeight*(number - 1)+ dragRect.itemMargin * (number) + selectHeight
+                                                }
+                                            }
+                                            //cписок открывается наверх
+                                            else {
+                                                if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + /*высота элемента*/ Param.itemsHeight > scene.height) {
+                                                    //не влазит
+                                                    childRec.y = Param.fBHeight - /*высота элемента*/ Param.itemsHeight
+                                                }
+                                                else{
+                                                    childRec.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number +1))
+                                                }
 
+                                            }
+
+                                            create = true
+
+                                            menuClose.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
+                                            childRec.close.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
+
+                                        }
                                     }
                                 }
 
                             }
                         }
                     }
+
                     DropShadow {
                         anchors.fill: itemOfMenu
                         horizontalOffset: Param.horizOffset

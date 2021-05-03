@@ -72,6 +72,22 @@ Item {
     property int itemCompElemHeight: 24
     //связь
     property int connectWidth: 3/ 1.5
+    //таблица
+    property int tableWidth: 880/1.5
+    property int tableSWidth: 480/1.5
+    property int tableHeight: 200
+    property int tableSmallWidth: 200 / 1.5
+    property int tableBigWidth: 400 / 1.5
+    property int tableHeadHeight: 80 / 1.5
+    property int tableCellHeight: 40 / 1.5
+    //список параметрво
+    property int listWidth: 400/1.5
+    property int listHeight: 200
+    property int listTitleHeight: 80 / 1.5
+    //список кнопок
+    property int itemsWidth: 320/1.5
+    property int itemsHeight: 200
+    property int itemsTitleHeight: 80 / 1.5
     //иконки
     property string iconArrowBigBlack: "images/ArrowBigBlack.png"
     property string iconArrowBigBlue: "images/ArrowBigBlue.png"

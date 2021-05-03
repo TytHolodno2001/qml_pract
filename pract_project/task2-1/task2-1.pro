@@ -45,7 +45,9 @@ DISTFILES += \
     ThemeLight.png \
     arrow.png \
     funckBlock.qml \
+    list.qml \
     no.png \
+    table.qml \
     yes.png
 
 HEADERS +=

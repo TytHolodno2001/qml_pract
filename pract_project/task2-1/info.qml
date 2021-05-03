@@ -153,6 +153,7 @@ Rectangle{
                 color: darkTheme?Param.dtextColor1:Param.ltextColor1
                 y: -vbar.position * height
             }
+
             ScrollBar {
                 id: vbar
                 hoverEnabled: true
