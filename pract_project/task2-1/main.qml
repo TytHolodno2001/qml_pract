@@ -388,7 +388,7 @@ Window {
         property string createBlockPPU:  "no"
         property string createBlockPPO:  "no"
         property string createBlockBASI:  "no"
-        property string createBlockBAPPD:  "no"
+        property string createBlockBAPD:  "no"
 
         Component.onCompleted: {
 
@@ -465,31 +465,31 @@ Window {
                 let childRec2 = component.createObject(menu)
                 childRec2.x = parent.x + Param.margin32
                 childRec2.y = parent.y + Param.margin32 +Param.margin24*2 +Param.buttonSmallHeight*2
-                childRec2.itemText = "Отобразить БАППД"
-                childRec2.itemTextOnClick = "Скрыть БАППД"
+                childRec2.itemText = "Отобразить БАПД"
+                childRec2.itemTextOnClick = "Скрыть БАПД"
 
                 //параметры БА
-                let itemCompBAPPD = createItemComp("file:/pract_project/task2-1/itemCompBAPPD.txt")
+                let itemCompBAPD = createItemComp("file:/pract_project/task2-1/itemCompBAPD.txt")
 
                 childRec2.onClick.connect(function(){
-                    if(createBlockBAPPD === "no") {
-                        createFunckBlock("BAPPD", "БАППД", Param.iconBAPPDDark , itemCompBAPPD)
-                        createBlockBAPPD = "yes"
+                    if(createBlockBAPD === "no") {
+                        createFunckBlock("BAPD", "БАПД", Param.iconBAPDDark , itemCompBAPD)
+                        createBlockBAPD = "yes"
                     }
-                    else if(createBlockBAPPD === "yes"){
-                        let PPU = find(funckBlocks, function(item) { return item.id === "BAPPD" })
+                    else if(createBlockBAPD === "yes"){
+                        let PPU = find(funckBlocks, function(item) { return item.id === "BAPD" })
                         PPU.data.visible = false
-                        visConnectNO("БАППД")
-                        createBlockBAPPD = "no-vis"
+                        visConnectNO("БАПД")
+                        createBlockBAPD = "no-vis"
                     }
                     else {
-                        let PPU = find(funckBlocks, function(item) { return item.id === "BAPPD" })
+                        let PPU = find(funckBlocks, function(item) { return item.id === "BAPD" })
                         PPU.data.visible = true
-                        visConnect("БАППД")
-                        createBlockBAPPD = "yes"
+                        visConnect("БАПД")
+                        createBlockBAPD = "yes"
                     }
                     if(menu2.visibleConnect === false){
-                        visConnectNO("БАППД")
+                        visConnectNO("БАПД")
                     }
                 }
                 )
@@ -667,10 +667,10 @@ Window {
                             BASI.data.y = BASI.data.dragMinY
                         }
 
-                        let BAPPD = find(funckBlocks, function(item) { return item.id === "BAPPD" })
-                        if(BAPPD!== null) {
-                            BAPPD.data.x = scene.width/2 + Param.margin48/2
-                            BAPPD.data.y = BAPPD.data.dragMinY
+                        let BAPD = find(funckBlocks, function(item) { return item.id === "BAPD" })
+                        if(BAPD!== null) {
+                            BAPD.data.x = scene.width/2 + Param.margin48/2
+                            BAPD.data.y = BAPD.data.dragMinY
                         }
 
                         for(let i = 0; i < connectFunckBlock.count; i++){
