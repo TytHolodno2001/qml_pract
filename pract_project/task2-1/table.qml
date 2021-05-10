@@ -20,11 +20,11 @@ Rectangle{
 
     property string title
     property var tableCell
-     signal close();
+    signal close();
 
     onTableCellChanged: {
         for(let i =0; i < tableCell.length; i++) {
-                table.appendRow(tableCell[i])
+            table.appendRow(tableCell[i])
         }
     }
     Rectangle {

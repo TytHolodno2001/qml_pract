@@ -13,5 +13,8 @@
         <file>list.qml</file>
         <file>items.qml</file>
         <file>table2.qml</file>
+        <file>expressHelpBASI.qml</file>
+        <file>expressHelpBAPD.qml</file>
+        <file>expressHelpParam.qml</file>
     </qresource>
 </RCC>

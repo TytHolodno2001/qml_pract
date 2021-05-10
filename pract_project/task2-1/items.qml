@@ -99,10 +99,6 @@ Rectangle{
 
                 ListModel {
                     id: listModel
-
-                    Component.onCompleted: {
-                        listModel.append(itemComp)
-                    }
                 }
 
                 Component {
@@ -158,7 +154,6 @@ Rectangle{
                             onClicked: {
                                 if(!create){
                                     if(type == "info") {
-
                                         let component = Qt.createComponent("info.qml");
                                         if (component.status === Component.Ready) {
                                             var child= component.createObject(content);
@@ -224,6 +219,73 @@ Rectangle{
                                             child.tableCell = rows
 
                                             child.title = name
+
+                                            create = true
+
+                                            child.close.connect(function(){
+                                                child.destroy()
+                                                create = false
+                                            })
+
+                                        }
+                                    }
+                                    //экспресс справка БАСИ
+                                    if(type == "expressHelpBASI") {
+                                        let component = Qt.createComponent("expressHelpBASI.qml");
+                                        if (component.status === Component.Ready) {
+                                            var child= component.createObject(content);
+                                            //открывается справа или слева
+                                            child.x = elemWidth + margin
+                                            child.y = 0
+
+                                            let string = info.split('/')
+
+                                            child.numberProduct = string[0]
+                                            child.dateProduct = string[1]
+                                            child.timeProduct = string[2]
+                                            let tableInfo = []
+                                            let stringtable= String(string[3])
+                                            console.log(string[3])
+                                            let table = stringtable.split("-")
+                                            for (let i = 0; i < table.length; i++){
+                                                let elem = table[i].split(",")
+                                                tableInfo.push({mode: elem[0], bstp: elem[1], betp: elem[2], bstr: elem[3], betr: elem[4], info: elem[5]})
+                                                console.log(elem)
+                                            }
+
+                                            child.itemComp = tableInfo
+                                            create = true
+
+                                            child.close.connect(function(){
+                                                child.destroy()
+                                                create = false
+                                            })
+
+                                        }
+                                    }
+                                    //экспресс справка БАПД
+                                    if(type == "expressHelpBAPD") {
+                                        let component = Qt.createComponent("expressHelpBAPD.qml");
+                                        if (component.status === Component.Ready) {
+                                            var child= component.createObject(content);
+                                            //открывается справа или слева
+                                            child.x = elemWidth + margin
+                                            child.y = 0
+
+                                            let string = info.split('/')
+                                            child.numberProduct = string[0]
+                                            child.dateProduct = string[1]
+                                            child.timeProduct = string[2]
+                                            let tableInfo = []
+                                            let stringtable= String(string[3])
+                                            console.log(string[3])
+                                            let table = stringtable.split("-")
+                                            for (let i = 0; i < table.length; i++){
+                                                let elem = table[i].split(",")
+                                                tableInfo.push({param: elem[0], bstp: elem[1], betp: elem[2], bstr: elem[3], betr: elem[4]})
+                                                console.log(elem)
+                                            }
+                                            child.itemComp = tableInfo
 
                                             create = true
 

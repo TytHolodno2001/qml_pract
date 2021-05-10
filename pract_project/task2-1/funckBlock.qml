@@ -299,7 +299,7 @@ Rectangle{
                             //                            закрытие левого блока
                             listItem.clear()
                             listItem.append(itemComp1)
-
+                            menuClose()
                             itemMenu.height = selectItemVis? (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin : (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
                             if(!strelka_area.openDown){
                                 itemMenu.y = -itemMenu.height
@@ -312,6 +312,7 @@ Rectangle{
                             //                            закрытие правого блока
                             listItem.clear()
                             listItem.append(itemComp)
+                            menuClose()
                             itemMenu.height = selectItemVis? (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin : (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
                             if(!strelka_area.openDown){
                                 itemMenu.y =- itemMenu.height
@@ -376,6 +377,7 @@ Rectangle{
                             //закрытие левого блока
                             listItem.clear()
                             listItem.append(itemComp1)
+                            menuClose()
 
                             itemMenu.height = selectItemVis? (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin : (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
                             if(!strelka_area.openDown){
@@ -389,6 +391,7 @@ Rectangle{
                             //закрытие правого блока
                             listItem.clear()
                             listItem.append(itemComp)
+                            menuClose()
                             itemMenu.height = selectItemVis? (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count + 1) + dragRect.itemMargin : (dragRect.itemHeight + dragRect.itemMargin)* (listItem.count) + dragRect.itemMargin
                             if(!strelka_area.openDown){
                                 itemMenu.y = -itemMenu.height
