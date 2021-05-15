@@ -153,6 +153,7 @@ Rectangle{
 
                             onClicked: {
                                 if(!create){
+                                    // ТУТ JSON
                                     if(type == "info") {
                                         let component = Qt.createComponent("info.qml");
                                         if (component.status === Component.Ready) {
@@ -164,7 +165,7 @@ Rectangle{
                                             let elem = info.split(",")
 
                                             child.text = elem[1]
-                                            child.state_text = statePar
+                                            child.state_text = state
                                             child.title_text = elem[0]
 
                                             create = true
@@ -184,13 +185,13 @@ Rectangle{
                                             //открывается справа или слева
                                             child.x = elemWidth + margin
                                             child.y = 0
-
-                                            let string = info.split('-')
                                             let items = []
-                                            for (let i = 0; i < string.length; i++){
-                                                let elem = string[i].split(",")
-                                                items.push({number: elem[0], value: elem[1], statePar: elem[2]})
+                                            for (let i = 0; i < info.count; i++){
+                                                let elem = info.get(0)
+                                                items.push({number: elem.number, value: elem.value, statePar: elem.state})
                                             }
+
+
                                             child.itemComp = items
                                             child.title = name
                                             create = true
@@ -205,59 +206,23 @@ Rectangle{
                                     if(type == "table") {
                                         let component = Qt.createComponent("table.qml");
                                         if (component.status === Component.Ready) {
-                                            var child= component.createObject(content);
-                                            //открывается справа или слева
-                                            child.x = elemWidth + margin
-                                            child.y = 0
-
-                                            let string = info.split('-')
+                                            let childRec = component.createObject(content)
+//                                            let string = info.split('-')
+                                            childRec.x = elemWidth + margin
+                                            childRec.y = 0
                                             let rows = []
-                                            for (let i = 0; i < string.length; i++){
-                                                let elem = string[i].split(",")
-                                                rows.push({number: elem[0], tn: elem[1], tk: elem[2], mode: elem[3]})
+                                            for (let i = 0; i < info.count; i++){
+                                                let elem = info.get(i)
+                                                rows.push({number: elem.number, tnp: elem.tnp, tkp: elem.tkp, tnr: elem.tnr, tkr: elem.tkr, mode: elem.mode})
                                             }
-                                            child.tableCell = rows
-
-                                            child.title = name
+                                            childRec.tableCell = rows
+childRec.statePar = statePar
+                                            childRec.title = name
 
                                             create = true
 
-                                            child.close.connect(function(){
-                                                child.destroy()
-                                                create = false
-                                            })
-
-                                        }
-                                    }
-                                    //экспресс справка БАСИ
-                                    if(type == "expressHelpBASI") {
-                                        let component = Qt.createComponent("expressHelpBASI.qml");
-                                        if (component.status === Component.Ready) {
-                                            var child= component.createObject(content);
-                                            //открывается справа или слева
-                                            child.x = elemWidth + margin
-                                            child.y = 0
-
-                                            let string = info.split('/')
-
-                                            child.numberProduct = string[0]
-                                            child.dateProduct = string[1]
-                                            child.timeProduct = string[2]
-                                            let tableInfo = []
-                                            let stringtable= String(string[3])
-                                            console.log(string[3])
-                                            let table = stringtable.split("-")
-                                            for (let i = 0; i < table.length; i++){
-                                                let elem = table[i].split(",")
-                                                tableInfo.push({mode: elem[0], bstp: elem[1], betp: elem[2], bstr: elem[3], betr: elem[4], info: elem[5]})
-                                                console.log(elem)
-                                            }
-
-                                            child.itemComp = tableInfo
-                                            create = true
-
-                                            child.close.connect(function(){
-                                                child.destroy()
+                                            childRec.close.connect(function(){
+                                                childRec.destroy()
                                                 create = false
                                             })
 
@@ -265,26 +230,58 @@ Rectangle{
                                     }
                                     //экспресс справка БАПД
                                     if(type == "expressHelpBAPD") {
-                                        let component = Qt.createComponent("expressHelpBAPD.qml");
+                                        let component = Qt.createComponent("expressHelp.qml");
                                         if (component.status === Component.Ready) {
                                             var child= component.createObject(content);
                                             //открывается справа или слева
                                             child.x = elemWidth + margin
                                             child.y = 0
+                                            create = true
 
-                                            let string = info.split('/')
-                                            child.numberProduct = string[0]
-                                            child.dateProduct = string[1]
-                                            child.timeProduct = string[2]
+                                            child.title = info.mode
                                             let tableInfo = []
-                                            let stringtable= String(string[3])
-                                            console.log(string[3])
-                                            let table = stringtable.split("-")
-                                            for (let i = 0; i < table.length; i++){
-                                                let elem = table[i].split(",")
-                                                tableInfo.push({param: elem[0], bstp: elem[1], betp: elem[2], bstr: elem[3], betr: elem[4]})
-                                                console.log(elem)
+child.statePar = statePar
+                                            child.numberProduct = info.number
+                                            child.dateProduct = info.date
+                                            child.timeProduct = info.time
+                                            console.log( info.info.length)
+
+                                            for (let i = 0; i < info.info.length; i++){
+                                                let elem = info.info[i]
+                                                tableInfo.push({name: elem.name, value: elem.value, statePar: elem.state,type:elem.type, infoPar: elem.info})
                                             }
+
+                                            child.itemComp = tableInfo
+
+                                            child.close.connect(function(){
+                                                child.destroy()
+                                                create = false
+                                            })
+                                        }
+                                    }
+
+                                    //экспресс справка БАСИ
+                                    if(type == "expressHelp") {
+                                        let component = Qt.createComponent("expressHelpBASI.qml");
+                                        if (component.status === Component.Ready) {
+                                            var child= component.createObject(content);
+                                            //открывается справа или слева
+                                            child.x = elemWidth + margin
+                                            child.y = 0
+child.statePar = statePar
+
+                                            let tableInfo = []
+
+                                            child.title = name
+                                            child.numberProduct = info.number
+                                            child.dateProduct = info.date
+                                            child.timeProduct = info.time
+                                            for (let i = 0; i < info.inform.length; i++){
+                                                let elem = info.inform[i]
+                                                tableInfo.push({mode: elem.mode, bstp: elem.bstp, betp: elem.betp, bstr: elem.bstr, betr: elem.betr, info: elem.info})
+                                            console.log(elem.info)
+                                            }
+
                                             child.itemComp = tableInfo
 
                                             create = true

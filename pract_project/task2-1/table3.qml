@@ -3,12 +3,10 @@ import QtQuick.Controls 2.5
 import Qt.labs.qmlmodels 1.0
 import Param 1.0
 import QtGraphicalEffects 1.12
-
-
 Rectangle{
     id: main_rec
     property int smallWidth: Param.tableSmallWidth
-    property int bigWidth: Param.tableBigWidth
+    property int bigWidth: Param.tableMediumWidth
     property int headHeight: Param.tableHeadHeight
     property int cellHeight: Param.tableCellHeight
     property int margin: Param.margin24
@@ -17,28 +15,28 @@ Rectangle{
     property color accentColor: Param.accentСolor1
     property color fontColor: darkTheme?Param.dtextColor1:Param.ltextColor1
     property color borderColor: darkTheme?Param.delemThirdColor:Param.lelemThirdColor
-
-    property string title
-    property var tableCell
     property string statePar: "bad"
+    property string title
+    property var itemComp
     signal close();
-
-    onTableCellChanged: {
-        listModel.append(tableCell)
+    onItemCompChanged: {
+        listModel.append(itemComp)
     }
+
     Rectangle {
         id:table_info
         color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
-        width: headHeight + smallWidth*2 + bigWidth
-        height: Param.tableHeight
+        width: bigWidth
+        height: Param.tableMediumHeight + headHeight
         visible: true
         radius: Param.elemRadius
+
+        //первая строка - заголовка
         Rectangle {
             id:title
-            width: headHeight + smallWidth*2 + bigWidth
+            width: bigWidth
             height: headHeight
             anchors.left: parent.left
-
             anchors.top: parent.top
             radius: Param.elemRadius
             color: parent.color
@@ -68,7 +66,7 @@ Rectangle{
             radius: Param.elemRadius
             border.color: borderColor
             border.width: Param.sizeFrame
-            visible:statePar=="ok"?false:true
+visible:statePar=="ok"?false:true
             Text {
                 text: "ошибки"
                 font.family: Param.textFontFamily
@@ -111,9 +109,9 @@ Rectangle{
                     all_ma.active = false
                     active = true
                     let errorComp = [];
-                    for(let i = 0; i < tableCell.length; i++){
-                        if((tableCell[i].tnp!=tableCell[i].tnr)||(tableCell[i].tkp!=tableCell[i].tkr)){
-                            errorComp.push(tableCell[i])
+                    for(let i = 0; i < itemComp.length; i++){
+                        if((itemComp[i].value>itemComp[i].max)||(itemComp[i].value<itemComp[i].min)){
+                            errorComp.push(itemComp[i])
                         }
 
                     }
@@ -180,7 +178,7 @@ visible:statePar=="ok"?false:true
                     err_ma.active = false
                     active = true
                     listModel.clear()
-                    listModel.append(tableCell)
+                    listModel.append(itemComp)
                     all.border.color = Param.accentСolor1
                     onlyError.border.color = borderColor
                 }
@@ -207,146 +205,131 @@ visible:statePar=="ok"?false:true
                 anchors.fill: parent
                 onClicked: {
                     main_rec.close()
+
                 }
             }
         }
 
 
+        //таблица
+        //сам список
         Rectangle {
+            id: listPar
             anchors.top: parent.top
             anchors.topMargin: headHeight
-            width: headHeight+smallWidth*2+bigWidth
-            height: Param.tableHeight - headHeight
+            anchors.left: parent.left
+            anchors.leftMargin: margin
+            width: bigWidth - margin*2
+            height: table_info.height - headHeight - margin
             clip: true
             color: parent.color
             radius: Param.elemRadius
+
             ListModel {
                 id: listModel
-
-            }
-            Component {
-                id:listDelegate
-                Rectangle {
-                    height:cellHeight
-                    width: headHeight+smallWidth*2+bigWidth
-                    color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
-                    Rectangle{
-                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
-                        width: headHeight
-                        height: cellHeight
-                        anchors.left: parent.left
-                        anchors.leftMargin: 0
-                        border.width: 1
-                        border.color: borderColor
-                        Text {
-                            anchors.fill: parent
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            font.family: Param.textFontFamily
-                            text: number
-                            font.pointSize: fontPointSize
-                            color: fontColor
-                        }
-                    }
-                    Rectangle{
-                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
-                        width: (parent.width - headHeight)/5
-                        anchors.left: parent.left
-                        anchors.leftMargin: headHeight
-                        height: cellHeight
-                        border.width: 1
-                        border.color: borderColor
-                        Text {
-                            anchors.fill: parent
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            font.family: Param.textFontFamily
-                            text: tnp
-                            font.pointSize: fontPointSize
-                            color:  number == "№"?fontColor:(tnp == tnr? fontColor:Param.accentСolor2)
-                        }
-                    }
-                    Rectangle{
-                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
-                        width: (parent.width - headHeight)/5
-                        anchors.left: parent.left
-                        anchors.leftMargin: headHeight + (parent.width - headHeight)/5
-                        height: cellHeight
-                        border.width: 1
-                        border.color: borderColor
-                        Text {
-                            anchors.fill: parent
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            font.family: Param.textFontFamily
-                            text: tkp
-                            font.pointSize: fontPointSize
-                            color: number == "№"?fontColor:(tkp == tkr? fontColor:Param.accentСolor2)
-                        }
-                    }
-                    Rectangle{
-                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
-                        width: (parent.width - headHeight)/5
-                        anchors.left: parent.left
-                        anchors.leftMargin: headHeight + (parent.width - headHeight)/5*2
-                        height: cellHeight
-                        border.width: 1
-                        border.color: borderColor
-                        Text {
-                            anchors.fill: parent
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            font.family: Param.textFontFamily
-                            text: tnr
-                            font.pointSize: fontPointSize
-                            color: number == "№"?fontColor:(tnp == tnr? fontColor:Param.accentСolor2)
-                        }
-                    }
-                    Rectangle{
-                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
-                        width: (parent.width - headHeight)/5
-                        anchors.left: parent.left
-                        anchors.leftMargin: headHeight + (parent.width - headHeight)/5*3
-                        height: cellHeight
-                        border.width: 1
-                        border.color: borderColor
-                        Text {
-                            anchors.fill: parent
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            font.family: Param.textFontFamily
-                            text: tkr
-                            font.pointSize: fontPointSize
-                            color: number == "№"?fontColor:(tkp == tkr? fontColor:Param.accentСolor2)
-                        }
-                    }
-                    Rectangle{
-                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
-                        width: (parent.width - headHeight)/5
-                        anchors.left: parent.left
-                        anchors.leftMargin: headHeight + (parent.width - headHeight)/5*4
-                        height: cellHeight
-                        border.width: 1
-                        border.color: borderColor
-                        Text {
-                            anchors.fill: parent
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            font.family: Param.textFontFamily
-                            text: mode
-                            font.pointSize: fontPointSize
-                            color: fontColor
-                        }
-                    }
+                Component.onCompleted: {
 
                 }
             }
+
+            Component {
+                id:listDelegate
+                Rectangle {
+                    height: Param.tableButtonHeight
+                    width: bigWidth - margin*2
+                    color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                    Rectangle {
+                        height: parent.height
+                        width: parent.width/4
+                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                        border.color: borderColor
+                        border.width: Param.sizeFrame
+                        anchors.left: parent.left
+                        anchors.leftMargin: 0
+                        Text {
+                            //param: "Параметр ", value: "000000*", min: "000000", max: "000000"
+                            text: param
+                            font.family: Param.textFontFamily
+                            anchors.fill: parent
+                            font.pointSize: fontPointSize
+                            color:  (darkTheme?Param.dtextColor1:Param.ltextColor1)
+                            horizontalAlignment: Text.AlignLeft
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.left: parent.left
+                            anchors.leftMargin: margin
+                        }
+                    }
+                    Rectangle {
+                        height: parent.height
+                        width: parent.width/4
+                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                        border.color: borderColor
+                        border.width: Param.sizeFrame
+                        anchors.left: parent.left
+                        anchors.leftMargin: parent.width/4
+                        Text {
+                            //param: "Параметр ", value: "000000*", min: "000000", max: "000000"
+                            text: value
+                            font.family: Param.textFontFamily
+                            anchors.fill: parent
+                            font.pointSize: fontPointSize
+                            color:  (value=="Мощ(Ватт)"||value=="t(C )")?(darkTheme?Param.dtextColor1:Param.ltextColor1):((value<max)&&(value>min))?(darkTheme?Param.dtextColor1:Param.ltextColor1):Param.accentСolor2
+                            horizontalAlignment: Text.AlignLeft
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.left: parent.left
+                            anchors.leftMargin: margin
+                        }
+                    }
+                    Rectangle {
+                        height: parent.height
+                        width: parent.width/4
+                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                        border.color: borderColor
+                        border.width: Param.sizeFrame
+                        anchors.left: parent.left
+                        anchors.leftMargin:parent.width/4*2
+                        Text {
+                            //param: "Параметр ", value: "000000*", min: "000000", max: "000000"
+                            text: min
+                            font.family: Param.textFontFamily
+                            anchors.fill: parent
+                            font.pointSize: fontPointSize
+                            color:  (darkTheme?Param.dtextColor1:Param.ltextColor1)
+                            horizontalAlignment: Text.AlignLeft
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.left: parent.left
+                            anchors.leftMargin: margin
+                        }
+                    }
+                    Rectangle {
+                        height: parent.height
+                        width: parent.width/4
+                        color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                        border.color: borderColor
+                        border.width: Param.sizeFrame
+                        anchors.left: parent.left
+                        anchors.leftMargin: parent.width/4 *3
+                        Text {
+                            //param: "Параметр ", value: "000000*", min: "000000", max: "000000"
+                            text: max
+                            font.family: Param.textFontFamily
+                            anchors.fill: parent
+                            font.pointSize: fontPointSize
+                            color: (darkTheme?Param.dtextColor1:Param.ltextColor1)
+                            horizontalAlignment: Text.AlignLeft
+                            verticalAlignment: Text.AlignVCenter
+                            anchors.left: parent.left
+                            anchors.leftMargin: margin
+                        }
+                    }
+                }
+            }
+
             ListView {
                 anchors.fill: parent
                 model: listModel
                 delegate: listDelegate
             }
-
         }
     }
     DropShadow {

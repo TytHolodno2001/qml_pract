@@ -102,7 +102,6 @@ Rectangle{
                     id: listModel
 
                     Component.onCompleted: {
-                    listModel.append(itemComp)
                     }
                 }
 

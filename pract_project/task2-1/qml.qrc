@@ -14,7 +14,9 @@
         <file>items.qml</file>
         <file>table2.qml</file>
         <file>expressHelpBASI.qml</file>
-        <file>expressHelpBAPD.qml</file>
-        <file>expressHelpParam.qml</file>
+        <file>table3.qml</file>
+        <file>expressHelp.qml</file>
+        <file>expressHelpPPO.qml</file>
+        <file>DB.qml</file>
     </qresource>
 </RCC>

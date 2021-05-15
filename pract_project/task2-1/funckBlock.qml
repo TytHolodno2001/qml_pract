@@ -478,7 +478,7 @@ Rectangle{
 
                         radius: dragRect.menuRadius
                         border.width: Param.sizeFrame
-                        border.color: type == "info"? (stat=="yes" ? Param.accentСolor1:Param.accentСolor2) :Param.accentСolor1
+                        border.color: statePar == "ok"?Param.accentСolor1:Param.accentСolor2
 
                         Text{
                             width: parent.width - parent.height
@@ -503,12 +503,7 @@ Rectangle{
                             color: parent.color
                             radius: dragRect.menuRadius
 
-                            Image {
-                                anchors.verticalCenter: parent.verticalCenter
-                                source: type == "info"? (stat=="yes" ? Param.iconStateActive : Param.iconStateWrong) : ""
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                rotation: 0
-                            }
+
                         }
 
                         MouseArea {
@@ -524,7 +519,7 @@ Rectangle{
                             }
                             onExited:{
                                 parent.border.width = Param.sizeFrame
-                                parent.border.color = type == "info"? (stat=="yes" ? Param.accentСolor1:Param.accentСolor2) :Param.accentСolor1
+                                parent.border.color = statePar == "ok"?Param.accentСolor1:Param.accentСolor2
                             }
 
                             //при клике
@@ -532,86 +527,30 @@ Rectangle{
                             {
                                 parent.color = darkTheme?Param.delemThirdColor:Param.lelemThirdColor
                                 parent.border.width = Param.sizeFrame
-                                parent.border.color = Param.accentСolor1}
+                                parent.border.color = Param.accentСolor2}
                             onReleased:{
                                 themeChange.connect(function(){
                                     parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                                 })
                                 parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
-                                parent.border.width = 0
+                                parent.border.color = statePar == "ok"?Param.accentСolor1:Param.accentСolor2
+
                             }
 
                             onClicked:{
+                                // ТУТ JSON
                                 if(!create) {
                                     let selectHeight = selectItemVis? dragRect.itemHeight + dragRect.itemMargin: 0
-                                    if(type == "info") {
-                                        let component = Qt.createComponent("info.qml");
-                                        if (component.status === Component.Ready) {
-                                            var child= component.createObject(dragRect);
-                                            //открывается справа или слева
-                                            if(dragRect.x > scene.width - (dragRect.itemMargin + Param.fBWidth) - /*ширина элемента*/Param.fBWidth)
-                                                //слева
-                                            {
-                                                child.x = -dragRect.itemMargin - /*ширина элемента*/ Param.fBWidth
-                                            }
-                                            else
-                                                //справа
-                                            {
-                                                child.x = dragRect.itemMargin + Param.fBWidth
-                                            }
 
-                                            //открывается напротив пункта или выше
-
-                                            //список открывается вниз
-                                            if(strelka_area.openDown){
-                                                if(dragRect.y + selectHeight + Param.fBHeight + dragRect.itemHeight*(number -1) + dragRect.itemMargin * (number) + /*высота элемента*/ Param.itemCompHeight > scene.height) {
-                                                    //не влазит
-                                                    child.y = dragRect.itemHeight*(listItem.count)+ dragRect.itemMargin * (listItem.count + 1) + selectHeight + Param.fBHeight - /*высота элемента*/ Param.itemCompHeight
-                                                }
-                                                else{
-                                                    //влазит
-                                                    child.y = Param.fBHeight + dragRect.itemHeight*(number - 1)+ dragRect.itemMargin * (number) + selectHeight
-                                                }
-                                            }
-                                            //cписок открывается наверх
-                                            else {
-                                                if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + /*высота элемента*/ Param.itemCompHeight > scene.height) {
-                                                    //не влазит
-                                                    child.y = Param.fBHeight - /*высота элемента*/ Param.itemCompHeight
-                                                }
-                                                else{
-                                                    child.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number +1))
-                                                }
-
-                                            }
-
-                                            child.text = text
-                                            child.state_text = state_text
-                                            child.title_text = name
-
-                                            create = true
-
-                                            menuClose.connect(function(){
-                                                child.destroy()
-                                                create = false
-                                            })
-
-                                            child.close.connect(function(){
-                                                child.destroy()
-                                                create = false
-                                            })
-
-                                        }
-                                    }
-                                    else if(type == "table"){
+                                    if(type == "table"){
                                         let component = Qt.createComponent("table.qml");
                                         if (component.status === Component.Ready) {
                                             let childRec = component.createObject(dragRect)
-                                            let string = info.split('-')
+                                            childRec.statePar = statePar
                                             let rows = []
-                                            for (let i = 0; i < string.length; i++){
-                                                let elem = string[i].split(",")
-                                                rows.push({number: elem[0], tn: elem[1], tk: elem[2], mode: elem[3]})
+                                            for (let i = 0; i < infoPar.count; i++){
+                                                let elem = infoPar.get(i)
+                                                rows.push({number: elem.number, tnp: elem.tnp, tkp: elem.tkp, tnr: elem.tnr, tkr: elem.tkr, mode: elem.mode})
                                             }
                                             childRec.tableCell = rows
 
@@ -665,14 +604,16 @@ Rectangle{
                                         }
                                     }
                                     else if(type == "table2"){
+
                                         let component = Qt.createComponent("table2.qml");
+                                         console.log(component.status)
                                         if (component.status === Component.Ready) {
                                             let childRec = component.createObject(dragRect)
-                                            let string = info.split('-')
+childRec.statePar = statePar
                                             let rows = []
-                                            for (let i = 0; i < string.length; i++){
-                                                let elem = string[i].split(",")
-                                                rows.push({par1: elem[0], par2: elem[1], par3: elem[2]})
+                                            for (let i = 0; i < infoPar.count; i++){
+                                                let elem = infoPar.get(i)
+                                                rows.push({par1: elem.par1, par2: elem.par2, par3: elem.par3})
                                             }
                                             childRec.tableCell = rows
 
@@ -729,11 +670,11 @@ Rectangle{
                                         let component = Qt.createComponent("list.qml");
                                         if (component.status === Component.Ready) {
                                             let childRec = component.createObject(dragRect)
-                                            let string = info.split('-')
+
                                             let items = []
-                                            for (let i = 0; i < string.length; i++){
-                                                let elem = string[i].split(",")
-                                                items.push({number: elem[0], value: elem[1], statePar: elem[2]})
+                                            for (let i = 0; i < infoPar.count; i++){
+                                                let elem = infoPar.get(i)
+                                                items.push({number: elem.number, value: elem.value, statePar: elem.statePar})
                                             }
                                             childRec.itemComp = items
                                             childRec.title = name
@@ -792,12 +733,14 @@ Rectangle{
                                         let component = Qt.createComponent("items.qml");
                                         if (component.status === Component.Ready) {
                                             let childRec = component.createObject(dragRect)
-                                            let string = info.split('&')
+
                                             let items = []
-                                            for (let i = 0; i < string.length; i++){
-                                                let elem = string[i].split("|")
-                                                items.push({name: elem[0], type: elem[1], statePar: elem[2], info: elem[3]})
+                                            for (let i = 0; i < infoPar.count; i++){
+                                                let elem = infoPar.get(i)
+                                                if (elem.type == "table") items.push({name: elem.name, type: elem.type, statePar: elem.state, info: elem.info})
+                                                else items.push({name: elem.name, type: elem.type, statePar: elem.state, info: elem.inform})
                                             }
+
                                             childRec.itemComp = items
                                             childRec.title = name
                                             //открывается справа или слева
@@ -851,8 +794,203 @@ Rectangle{
 
                                         }
                                     }
-                                }
+                                    else if(type == "table3"){
+                                        let component = Qt.createComponent("table3.qml");
+                                        if (component.status === Component.Ready) {
+                                            let childRec = component.createObject(dragRect)
 
+childRec.statePar = statePar
+                                            let rows = []
+                                            for (let i = 0; i < infoPar.count; i++){
+                                                let elem = infoPar.get(i)
+
+                                                rows.push({param: elem.param, value: elem.value, min: elem.min, max: elem.max})
+                                            }
+                                            childRec.itemComp = rows
+
+                                            childRec.title = name
+
+                                            //открывается справа или слева
+                                            //открывается справа или слева
+                                            if(dragRect.x > scene.width - (dragRect.itemMargin + Param.fBWidth) - /*ширина элемента*/Param.tableMediumWidth)
+                                                //слева
+                                            {
+                                                childRec.x = -dragRect.itemMargin - /*ширина элемента*/ Param.tableMediumWidth
+                                            }
+                                            else
+                                                //справа
+                                            {
+                                                childRec.x = dragRect.itemMargin + Param.fBWidth
+                                            }
+
+                                            //открывается напротив пункта или выше
+
+                                            //список открывается вниз
+                                            if(strelka_area.openDown){
+                                                if(dragRect.y + selectHeight + Param.fBHeight + dragRect.itemHeight*(number -1) + dragRect.itemMargin * (number) + /*высота элемента*/ Param.tableMediumHeight > scene.height) {
+                                                    //не влазит
+                                                    childRec.y = dragRect.itemHeight*(listItem.count)+ dragRect.itemMargin * (listItem.count + 1) + selectHeight + Param.fBHeight - /*высота элемента*/ Param.tableMediumHeight
+                                                }
+                                                else{
+                                                    //влазит
+                                                    childRec.y = Param.fBHeight + dragRect.itemHeight*(number - 1)+ dragRect.itemMargin * (number) + selectHeight
+                                                }
+                                            }
+                                            //cписок открывается наверх
+                                            else {
+                                                if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + /*высота элемента*/ Param.tableMediumHeight > scene.height) {
+                                                    //не влазит
+                                                    childRec.y = Param.fBHeight - /*высота элемента*/ Param.tableMediumHeight
+                                                }
+                                                else{
+                                                    childRec.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number +1))
+                                                }
+
+                                            }
+
+                                            create = true
+
+                                            menuClose.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
+                                            childRec.close.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
+
+                                        }
+                                    }
+                                    else if(type == "expressHelp") {
+                                        let component = Qt.createComponent("expressHelpBAPD.qml");
+                                        if (component.status === Component.Ready) {
+                                            var child= component.createObject(dragRect);
+childRec.statePar = statePar
+                                            let tableInfo = []
+                                            for (let i = 0; i < infoPar.count; i++){
+                                                let elem = infoPar.get(i)
+                                                tableInfo.push({param: elem.mode, bstp: elem.bstp, betp: elem.betp, bstr: elem.bstr, betr: elem.betr})
+                                            }
+                                            child.itemComp = tableInfo
+                                            create = true
+
+                                            //открывается справа или слева
+                                            if(dragRect.x > scene.width - (dragRect.itemMargin + Param.fBWidth) - /*ширина элемента*/Param.tableMediumWidth)
+                                                //слева
+                                            {
+                                                child.x = -dragRect.itemMargin - /*ширина элемента*/ Param.tableMediumWidth
+                                            }
+                                            else
+                                                //справа
+                                            {
+                                                child.x = dragRect.itemMargin + Param.fBWidth
+                                            }
+
+                                            //открывается напротив пункта или выше
+
+                                            //список открывается вниз
+                                            if(strelka_area.openDown){
+                                                if(dragRect.y + selectHeight + Param.fBHeight + dragRect.itemHeight*(number -1) + dragRect.itemMargin * (number) + /*высота элемента*/ Param.tableMediumHeight > scene.height) {
+                                                    //не влазит
+                                                    child.y = dragRect.itemHeight*(listItem.count)+ dragRect.itemMargin * (listItem.count + 1) + selectHeight + Param.fBHeight - /*высота элемента*/ Param.tableMediumHeight
+                                                }
+                                                else{
+                                                    //влазит
+                                                    child.y = Param.fBHeight + dragRect.itemHeight*(number - 1)+ dragRect.itemMargin * (number) + selectHeight
+                                                }
+                                            }
+                                            //cписок открывается наверх
+                                            else {
+                                                if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + /*высота элемента*/ Param.tableMediumHeight > scene.height) {
+                                                    //не влазит
+                                                    child.y = Param.fBHeight - /*высота элемента*/ Param.tableMediumHeight
+                                                }
+                                                else{
+                                                    child.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number +1))
+                                                }
+
+                                            }
+
+                                            menuClose.connect(function(){
+                                                childRec.destroy()
+                                                create = false
+                                            })
+                                            child.close.connect(function(){
+                                                child.destroy()
+                                                create = false
+                                            })
+
+                                        }
+                                    }
+                                    else if(type == "expressHelpPPO") {
+
+                                        let component = Qt.createComponent("expressHelpPPO.qml");
+                                        if (component.status === Component.Ready) {
+                                            var child= component.createObject(dragRect);
+                                            //открывается справа или слева
+                                            if(dragRect.x > scene.width - (dragRect.itemMargin + Param.fBWidth) - /*ширина элемента*/Param.tableMediumWidth)
+                                                //слева
+                                            {
+                                                child.x = -dragRect.itemMargin - /*ширина элемента*/ Param.tableMediumWidth
+                                            }
+                                            else
+                                                //справа
+                                            {
+                                                child.x = dragRect.itemMargin + Param.fBWidth
+                                            }
+
+                                            //открывается напротив пункта или выше
+
+                                            //список открывается вниз
+                                            if(strelka_area.openDown){
+                                                if(dragRect.y + selectHeight + Param.fBHeight + dragRect.itemHeight*(number -1) + dragRect.itemMargin * (number) + /*высота элемента*/ Param.tableMediumHeight > scene.height) {
+                                                    //не влазит
+                                                    child.y = dragRect.itemHeight*(listItem.count)+ dragRect.itemMargin * (listItem.count + 1) + selectHeight + Param.fBHeight - /*высота элемента*/ Param.tableMediumHeight
+                                                }
+                                                else{
+                                                    //влазит
+                                                    child.y = Param.fBHeight + dragRect.itemHeight*(number - 1)+ dragRect.itemMargin * (number) + selectHeight
+                                                }
+                                            }
+                                            //cписок открывается наверх
+                                            else {
+                                                if(dragRect.y - dragRect.itemHeight*(listItem.count - number) - dragRect.itemMargin * ((listItem.count - number)+1) + /*высота элемента*/ Param.tableMediumHeight > scene.height) {
+                                                    //не влазит
+                                                    child.y = Param.fBHeight - /*высота элемента*/ Param.tableMediumHeight
+                                                }
+                                                else{
+                                                    child.y =  - dragRect.itemHeight*(listItem.count - number + 1) -dragRect.itemMargin * ((listItem.count - number +1))
+                                                }
+
+                                            }
+
+                                            child.mode = infoPar.mode
+
+                                            child.tn = infoPar.tn
+                                            child.tk = infoPar.tk
+                                            child.basi = infoPar.BASI
+                                            child.bapd = infoPar.BAPD
+                                            child.si = infoPar.SI
+                                            child.mn = infoPar.MN
+                                            child.title = name
+                                            child.numberProduct.number
+                                            child.dateProduct = infoPar.date
+                                            child.timeProduct= infoPar.time
+
+                                            create = true
+
+                                            menuClose.connect(function(){
+                                                child.destroy()
+                                                create = false
+                                            })
+                                            child.close.connect(function(){
+                                                child.destroy()
+                                                create = false
+                                            })
+
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

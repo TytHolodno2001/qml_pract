@@ -10,8 +10,8 @@ Window {
     height: 1000
     visible: true
     color: darkTheme? Param.dbgColor:Param.lbgColor
-    minimumHeight: Param.margin80*3 + Param.margin48*3 + menu.height + menu2.height + Param.buttonSmallHeight
-    minimumWidth: Param.margin80*2 + Param.margin48*4 + Param.fBWidth + Param.buttonBigWidth*2
+    minimumHeight: Param.margin80*3 + Param.margin48*3 + menu.height + menu2.height + menu_DB.height
+    minimumWidth: Param.margin80*2 + Param.margin48*4 + Param.fBWidth + menu.width + Param.tableWidth + Param.itemsWidth
     property bool darkTheme: true
 
 
@@ -58,7 +58,7 @@ Window {
                     let child = componentError.createObject(mainWindow);
                     child.x = mainWindow.width/2 - Param.itemCompWidth/2
                     child.y = mainWindow.height/2 - Param.itemCompHeight/2
-                    child.desc_error = "Отсутсвует файл с компонентами для " + name_ru
+                    child.desc_error = "В файле отсутсвует информация для " + name_ru
                     child.title_error = "ОШИБКА"
 
                 }
@@ -105,7 +105,7 @@ Window {
 
 
             //про связи
-            let connects = readTextFile("file:/pract_project/task2-1/connect.txt")
+            let connects = JSON.parse(readTextFile("file:/pract_project/task2-1/ppu.json"))
             if(connects == "") {
                 let componentError = Qt.createComponent("errorInfo.qml");
                 if (componentError.status === Component.Ready) {
@@ -116,15 +116,32 @@ Window {
                     child.title_error = "ОШИБКА"
                 }
             }
+            else if(connects.connect==undefined){
+                let componentError = Qt.createComponent("errorInfo.qml");
+                if (componentError.status === Component.Ready) {
+                    let child = componentError.createObject(mainWindow);
+                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                    child.desc_error = "В файле отсутсвует информация о связях"
+                    child.title_error = "ОШИБКА"
+                }
+            }
+            else if(connects.connect.length<1){
+                let componentError = Qt.createComponent("errorInfo.qml");
+                if (componentError.status === Component.Ready) {
+                    let child = componentError.createObject(mainWindow);
+                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                    child.desc_error = "В файле отсутсвует информация о связях"
+                    child.title_error = "ОШИБКА"
+                }
+            }
             else {
-                let string = connects.split(';')
                 for( var i = 0; i < coun; i++ ) {
-
-
-                    for (let j = 0; j < string.length; j++){
-                        let elem = string[j].split("-")
-                        if((elem[0] == name_ru && elem[1] == funckBlocks.get(i).data.itemText)|| (elem[0] == funckBlocks.get(i).data.itemText && elem[1] == name_ru)){
-                            if(elem[2] == "1") {
+                    for( var j = 0; j < connects.connect.length; j++ ) {
+                        let elem  = connects.connect[j]
+                        if((elem.from == name_ru && elem.to == funckBlocks.get(i).data.itemText)|| (elem.from == funckBlocks.get(i).data.itemText && elem.to == name_ru)){
+                            if(elem.state == "1") {
                                 //в connect  можно добавить данные о связи между блоками
                                 let componentLine = Qt.createComponent("line.qml");
                                 if (componentLine.status === Component.Ready) {
@@ -141,7 +158,7 @@ Window {
                                     else childline.visible = true
                                     connectFunckBlock.append({firstNode: childRec, secondNode: funckBlocks.get(i).data, connect:childline })}
                             }
-                            else if(elem[2] == "2"){
+                            else if(elem.state == "2"){
                                 //в connect  можно добавить данные о связи между блоками
                                 let componentLine = Qt.createComponent("line.qml");
                                 if (componentLine.status === Component.Ready) {
@@ -220,60 +237,49 @@ Window {
     }
 
     //функция создание компонентов для функционального блока
-    function createItemComp(file) {
-        let err = false
-        let text = readTextFile(file)
-        if (text === ""){
+    function createItemComp(st) {
+        if (st === ""){
             return 0
         }
+        else if (st.length < 1 || st.length >2){
+            return 1
+        }
         else{
-            let string = text.split('\n')
             let item = []
             let item1 = []
-            if(string[0].includes('!')){
-                for (let i = 1; i < string.length; i++){
-                    let elem = string[i].split(";")
-                    //ПРОВЕРКА ФАЙЛА НА КОРРЕКТНОСТЬ ДАННЫХ
-                    //                if ((elem.length < 5)|| isNaN(elem[0]*1)||(elem[1]=="" )||(elem[3]=="" )||(elem[2]!= "no" && elem[2]!="yes") ) {
-                    //                    err = true
-                    //                    break
-                    //                }
-                    //                else{
-                    if (elem[2] == "info") item.push({number: elem[0]*1, name: elem[1], type: elem[2], stat: elem[3], state_text: elem[4], text: elem[5]})
-                    else if (elem[2] == "table") item.push({number: elem[0]*1, name: elem[1], type: elem[2], info: elem[3]})
-                    else if (elem[2] == "table2") item.push({number: elem[0]*1, name: elem[1], type: elem[2], info: elem[3]})
-                    else if (elem[2] == "list") item.push({number: elem[0]*1, name: elem[1], type: elem[2], info: elem[3]})
-                    else if (elem[2] == "items") item.push({number: elem[0]*1, name: elem[1], type: elem[2], info: elem[3]})
-                    //                }
+            if(st.length === 1/*string[0].includes('!')*/){
+                if(st[0].info.length<1){
+                    return 1
                 }
-                return {select: false, item:item}
+                else {
+                    for (let i = 0; i < st[0].info.length; i++){
+                        let elem = st[0].info[i]
+                        item.push({number: elem.number, name: elem.name, type: elem.type, statePar: elem.state, infoPar: elem.info})
+                    }
+                    return {select: false, item:item}}
             }
             else {
-                let selectItem = string[0].split('-')
-                for (let i = 0; i < string.length; i++){
-                    let elem = string[i].split(";")
-                    if( elem[0] == selectItem[0]) {
-                        if (elem[3] == "info") item.push({number: elem[1]*1, name: elem[2], type: elem[3], stat: elem[4], state_text: elem[5], text: elem[6]})
-                        else if (elem[3] == "table") item.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
-                        else if (elem[3] == "table2") item.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
-                        else if (elem[3] == "list") item.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
-                        else if (elem[3] == "items") item.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
-                    }
-                    else{
-                        if (elem[3] == "info") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], stat: elem[4], state_text: elem[5], text: elem[6]})
-                        else if (elem[3] == "table") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
-                        else if (elem[3] == "table2") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
-                        else if (elem[3] == "list") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
-                        else if (elem[3] == "items") item1.push({number: elem[1]*1, name: elem[2], type: elem[3], info: elem[4]})
-                    }
+                // let selectItem = string[0].split('-')
+                if(st[0].info.length<1||st[1].info.length<1){
+                    return 1
                 }
+                else{
+                    for (let i = 0; i < st[0].info.length; i++){
+                        let elem = st[0].info[i]
+                        let info = elem.info
 
-                return {select: true, item:item, item1:item1, itemText: selectItem[0], itemText1: selectItem[1]}
+                        item.push({number: elem.number, name: elem.name, type: elem.type, statePar: elem.state, infoPar: info})
+
+                    }
+
+                    for (let j = 0; j < st[1].info.length; j++){
+                        let elem = st[1].info[j]
+                        item1.push({number: elem.number, name: elem.name, type: elem.type, statePar: elem.state, infoPar: elem.info})
+                    }
+
+                    return {select: true, item:item, item1:item1, itemText: st[0].mode, itemText1: st[1].mode}
+                }
             }
-//            if(err){
-//                return 1
-//            }
-
         }
     }
 
@@ -379,7 +385,7 @@ Window {
         id: menu
         color: darkTheme?Param.delemFirstColor:Param.lelemFirstColor
         width: Param.buttonBigWidth
-        height: Param.buttonSmallHeight*4 + Param.margin32*2 + Param.margin24*3
+        height: Param.buttonSmallHeight*4 + Param.margin32 + Param.margin24*3 + Param.buttonSmallHeight
         y: Param.margin80*2 + Param.margin48
         x: Param.margin80
         radius: Param.elemRadius
@@ -390,6 +396,32 @@ Window {
         property string createBlockBASI:  "no"
         property string createBlockBAPD:  "no"
 
+        property var buttonPPU
+        property var buttonPPO
+        property var buttonBASI
+        property var buttonBAPD
+
+        Rectangle{
+            width: Param.buttonSmallWidth
+            height: Param.buttonSmallHeight
+            color: parent.color
+
+            anchors.leftMargin: Param.margin32
+            anchors.left: parent.left
+            Text{
+                width: parent.width
+                height: parent.height
+
+                text: "Текущие данные"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.family: Param.textFontFamily
+                font.pointSize: Param.textButtonSize
+                color: darkTheme? Param.accentСolor1:Param.ltextColor1
+            }
+        }
+
+
         Component.onCompleted: {
 
 
@@ -398,15 +430,29 @@ Window {
 
                 let childRec = component.createObject(menu)
                 childRec.x = parent.x + Param.margin32
-                childRec.y = parent.y + Param.margin32
+                childRec.y = parent.y  +Param.buttonSmallHeight
                 childRec.itemText = "Отобразить ППУ"
                 childRec.itemTextOnClick = "Скрыть ППУ"
-
+                buttonPPU = childRec
                 //параметры БА
 
-                let itemCompPPU = createItemComp("file:/pract_project/task2-1/itemCompPPU.txt")
+                let file = JSON.parse(readTextFile("file:/pract_project/task2-1/ppu.json"))
+                console.log(file.BA.BAPD[0].mode)
+                let itemCompPPU = createItemComp(file.BA.PPU)
 
                 childRec.onClick.connect(function(){
+                    if(menu_DB.bapd != null) {
+                        menu_DB.createBlockBAPD = "no"
+                        menu_DB.bapdLeft = false
+                        menu_DB.buttonBapdDB.click = "no"
+                        menu_DB.bapd.destroy()
+                    }
+                    if(menu_DB.basi != null) {
+                        menu_DB.createBlockBASI = "no"
+                        menu_DB.basiLeft = false
+                        menu_DB.buttonBasiDB.click = "no"
+                        menu_DB.basi.destroy()
+                    }
                     if(createBlockPPU === "no") {
                         createFunckBlock("PPU", "ППУ", Param.iconPPUDark, itemCompPPU)
                         createBlockPPU = "yes"
@@ -432,14 +478,26 @@ Window {
 
                 let childRec1 = component.createObject(menu)
                 childRec1.x = parent.x + Param.margin32
-                childRec1.y = parent.y + Param.margin32 +Param.margin24 +Param.buttonSmallHeight
+                childRec1.y = parent.y  +Param.margin24 +Param.buttonSmallHeight+Param.buttonSmallHeight
                 childRec1.itemText = "Отобразить БАСИ"
                 childRec1.itemTextOnClick = "Скрыть БАСИ"
-
+buttonBASI= childRec1
                 //параметры БА
-                let itemCompBASI = createItemComp("file:/pract_project/task2-1/itemCompBASI.txt")
+                let itemCompBASI = createItemComp(file.BA.BASI)
 
                 childRec1.onClick.connect(function(){
+                    if(menu_DB.bapd != null) {
+                        menu_DB.createBlockBAPD = "no"
+                        menu_DB.bapdLeft = false
+                        menu_DB.buttonBapdDB.click = "no"
+                        menu_DB.bapd.destroy()
+                    }
+                    if(menu_DB.basi != null) {
+                        menu_DB.createBlockBASI = "no"
+                        menu_DB.basiLeft = false
+                        menu_DB.buttonBasiDB.click = "no"
+                        menu_DB.basi.destroy()
+                    }
                     if(createBlockBASI === "no") {
                         createFunckBlock("BASI", "БАСИ", Param.iconBASIDark, itemCompBASI)
                         createBlockBASI = "yes"
@@ -464,14 +522,26 @@ Window {
 
                 let childRec2 = component.createObject(menu)
                 childRec2.x = parent.x + Param.margin32
-                childRec2.y = parent.y + Param.margin32 +Param.margin24*2 +Param.buttonSmallHeight*2
+                childRec2.y = parent.y  +Param.margin24*2 +Param.buttonSmallHeight*2+Param.buttonSmallHeight
                 childRec2.itemText = "Отобразить БАПД"
                 childRec2.itemTextOnClick = "Скрыть БАПД"
-
+buttonBAPD= childRec2
                 //параметры БА
-                let itemCompBAPD = createItemComp("file:/pract_project/task2-1/itemCompBAPD.txt")
+                let itemCompBAPD = createItemComp(file.BA.BAPD)
 
                 childRec2.onClick.connect(function(){
+                    if(menu_DB.bapd != null) {
+                        menu_DB.createBlockBAPD = "no"
+                        menu_DB.bapdLeft = false
+                        menu_DB.buttonBapdDB.click = "no"
+                        menu_DB.bapd.destroy()
+                    }
+                    if(menu_DB.basi != null) {
+                        menu_DB.createBlockBASI = "no"
+                        menu_DB.basiLeft = false
+                        menu_DB.buttonBasiDB.click = "no"
+                        menu_DB.basi.destroy()
+                    }
                     if(createBlockBAPD === "no") {
                         createFunckBlock("BAPD", "БАПД", Param.iconBAPDDark , itemCompBAPD)
                         createBlockBAPD = "yes"
@@ -496,14 +566,26 @@ Window {
 
                 let childRec3 = component.createObject(menu)
                 childRec3.x = parent.x + Param.margin32
-                childRec3.y = parent.y + Param.margin32 +Param.margin24*3 +Param.buttonSmallHeight*3
+                childRec3.y = parent.y  +Param.margin24*3 +Param.buttonSmallHeight*3+Param.buttonSmallHeight
                 childRec3.itemText = "Отобразить ППО"
                 childRec3.itemTextOnClick = "Скрыть ППО"
-
+buttonPPO= childRec3
                 //параметры БА
-                let itemCompPPO = createItemComp("file:/pract_project/task2-1/itemCompPPO.txt")
+                let itemCompPPO = createItemComp(file.BA.PPO)
 
                 childRec3.onClick.connect(function(){
+                    if(menu_DB.bapd != null) {
+                        menu_DB.createBlockBAPD = "no"
+                        menu_DB.bapdLeft = false
+                        menu_DB.buttonBapdDB.click = "no"
+                        menu_DB.bapd.destroy()
+                    }
+                    if(menu_DB.basi != null) {
+                        menu_DB.createBlockBASI = "no"
+                        menu_DB.basiLeft = false
+                        menu_DB.buttonBasiDB.click = "no"
+                        menu_DB.basi.destroy()
+                    }
                     if(createBlockPPO === "no") {
                         createFunckBlock("PPO", "ППО", Param.iconPPODark, itemCompPPO)
                         createBlockPPO = "yes"
@@ -538,6 +620,312 @@ Window {
         samples: Param.mainSamples
         color: darkTheme?Param.dDropShadowColor:Param.lDropShadowColor
         source: menu
+    }
+
+
+    //меню для отоброжения и скрытия объектов из БД
+    Rectangle {
+        id: menu_DB
+        color: darkTheme?Param.delemFirstColor:Param.lelemFirstColor
+        width: Param.buttonBigWidth
+        height: Param.buttonSmallHeight*2+ Param.margin32 + Param.margin24 + Param.buttonSmallHeight
+        y: Param.margin80*2 + Param.margin48 + Param.margin48 +  Param.buttonSmallHeight*4 + Param.margin32 + Param.margin24*3 + Param.buttonSmallHeight
+        x: Param.margin80
+        radius: Param.elemRadius
+        z: -1
+        property string createBlockBASI:  "no"
+        property string createBlockBAPD:  "no"
+
+        property bool basiLeft: false
+        property bool bapdLeft: false
+
+        property var basi
+        property var bapd
+
+        property var buttonBapdDB
+        property var buttonBasiDB
+
+        Rectangle{
+            width: Param.buttonSmallWidth
+            height: Param.buttonSmallHeight
+            color: parent.color
+
+            anchors.leftMargin: Param.margin32
+            anchors.left: parent.left
+            Text{
+                width: parent.width
+                height: parent.height
+
+                text: "Данные из БД"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.family: Param.textFontFamily
+                font.pointSize: Param.textButtonSize
+                color: darkTheme? Param.accentСolor1:Param.ltextColor1
+            }
+
+        }
+        Component.onCompleted: {
+            let component = Qt.createComponent("smallButton.qml");
+            if (component.status === Component.Ready) {
+
+                let childRec = component.createObject(menu_DB)
+
+                childRec.x = parent.x + Param.margin32
+                childRec.y = parent.y  +Param.buttonSmallHeight
+                childRec.itemText = "Данные по БАПД"
+                childRec.itemTextOnClick = "Данные по БАПД"
+                buttonBapdDB = childRec
+                childRec.onClick.connect(function(){
+
+
+                    if(createBlockBAPD === "no") {
+
+                        //скрыть все функциональные блоки
+                        for(let j = 0; j < funckBlocks.count; j++) {
+                            funckBlocks.get(j).data.visible = false
+
+                        }
+                        //скрыть все связи
+                        for(let i = 0; i < connectFunckBlock.count; i++){
+                            connectFunckBlock.get(i).connect.visible = false
+                        }
+                        //поменять надписи на кнопках
+                        if(menu.buttonPPU != null) {
+                            if (menu.createBlockPPU!="no" ) menu.createBlockPPU = "no-vis"
+                            menu.buttonPPU.click = "no"
+                        }
+                        if(menu.buttonPPO != null) {
+                            if (menu.createBlockPPO!="no" )menu.createBlockPPO = "no-vis"
+                            menu.buttonPPO.click = "no"
+                        }
+                        if(menu.buttonBAPD != null) {
+                            if (menu.createBlockBAPD!="no" )menu.createBlockBAPD = "no-vis"
+                            menu.buttonBAPD.click = "no"
+                        }
+                        if(menu.buttonBASI != null) {
+                            if (menu.createBlockBASI!="no" )menu.createBlockBASI = "no-vis"
+                            menu.buttonBASI.click = "no"
+                        }
+
+                        if (readTextFile("file:/pract_project/task2-1/ppu.json") == "") {
+                            let componentError = Qt.createComponent("errorInfo.qml");
+                            if (componentError.status === Component.Ready) {
+                                let child = componentError.createObject(mainWindow);
+                                child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                child.desc_error = "Файл с данными для БД отсутствует"
+                                child.title_error = "ОШИБКА"
+                            }
+                        }
+                        else{
+                            let file = JSON.parse(readTextFile("file:/pract_project/task2-1/ppu.json"))
+                            if (file.BD == undefined){
+                                let componentError = Qt.createComponent("errorInfo.qml");
+                                if (componentError.status === Component.Ready) {
+                                    let child = componentError.createObject(mainWindow);
+                                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                    child.desc_error = "Файл с данными для БД содержит некорректные данные"
+                                    child.title_error = "ОШИБКА"
+
+                                }
+                            }
+                            else if (file.BD.BAPD == undefined){
+                                let componentError = Qt.createComponent("errorInfo.qml");
+                                if (componentError.status === Component.Ready) {
+                                    let child = componentError.createObject(mainWindow);
+                                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                    child.desc_error = "Файл с данными для БАППД содержит некорректные данные"
+                                    child.title_error = "ОШИБКА"
+
+                                }
+                            }
+                            else{
+                                let component2 = Qt.createComponent("DB.qml");
+                                if (component2.status === Component.Ready) {
+                                    let childRec2 = component2.createObject(scene)
+                                    if(!basiLeft){
+                                        childRec2.x = Param.margin32
+                                        bapdLeft = true}
+                                    else{
+                                        childRec2.x = Param.margin32*2+(scene.width - Param.margin32*3)/2
+                                    }
+                                    childRec2.y = Param.margin32
+
+                                    childRec2.widthAll = (scene.width - Param.margin32*3)/2
+                                    childRec2.heightAll = scene.height - Param.margin32*2
+                                    childRec2.title = "БАПД"
+
+                                    let item = []
+                                    for (let i = 0; i < file.BD.BAPD.length; i++){
+                                        let elem = file.BD.BAPD[i]
+
+                                        item.push({number: elem.number, date: elem.date, time: elem.time, error: elem.error})
+
+                                    }
+
+                                    childRec2.itemComp = item
+                                    childRec2.close.connect(function(){
+                                        childRec2.destroy()
+                                        createBlockBAPD = "no"
+                                        bapdLeft = false
+                                        childRec.click = "no"
+                                    })
+                                    bapd = childRec2
+                                }
+                                createBlockBAPD = "yes"
+                            }
+                        }
+                    }
+                    else if(createBlockBAPD === "yes"){
+                        bapd.destroy()
+                        createBlockBAPD = "no"
+                        bapdLeft = false
+                    }
+
+                }
+                )
+
+
+                let childRec1 = component.createObject(menu_DB)
+                childRec1.x = parent.x + Param.margin32
+                childRec1.y = parent.y  +Param.margin24 +Param.buttonSmallHeight+Param.buttonSmallHeight
+                childRec1.itemText = "Данные по БАСИ"
+                childRec1.itemTextOnClick = "Данные по БАСИ"
+buttonBasiDB = childRec1
+                //параметры БА
+                //                    let itemCompBASI = createItemComp(file.BA.BASI)
+
+                childRec1.onClick.connect(function(){
+                    if(createBlockBASI=== "no") {
+                        //скрыть все функциональные блоки
+                        for(let j = 0; j < funckBlocks.count; j++) {
+                            funckBlocks.get(j).data.visible = false
+
+                        }
+                        //скрыть все связи
+                        for(let i = 0; i < connectFunckBlock.count; i++){
+                            connectFunckBlock.get(i).connect.visible = false
+                        }
+                        //поменять надписи на кнопках
+                        //поменять надписи на кнопках
+                        if(menu.buttonPPU != null) {
+                            if (menu.createBlockPPU!="no" ) menu.createBlockPPU = "no-vis"
+                            menu.buttonPPU.click = "no"
+                        }
+                        if(menu.buttonPPO != null) {
+                            if (menu.createBlockPPO!="no" )menu.createBlockPPO = "no-vis"
+                            menu.buttonPPO.click = "no"
+                        }
+                        if(menu.buttonBAPD != null) {
+                            if (menu.createBlockBAPD!="no" )menu.createBlockBAPD = "no-vis"
+                            menu.buttonBAPD.click = "no"
+                        }
+                        if(menu.buttonBASI != null) {
+                            if (menu.createBlockBASI!="no" )menu.createBlockBASI = "no-vis"
+                            menu.buttonBASI.click = "no"
+                        }
+
+
+                        if (readTextFile("file:/pract_project/task2-1/ppu.json") == "") {
+                            let componentError = Qt.createComponent("errorInfo.qml");
+                            if (componentError.status === Component.Ready) {
+                                let child = componentError.createObject(mainWindow);
+                                child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                child.desc_error = "Файл с данными для БД отсутствует"
+                                child.title_error = "ОШИБКА"
+                            }
+                        }
+                        else{
+
+                            let file = JSON.parse(readTextFile("file:/pract_project/task2-1/ppu.json"))
+                            if (file.BD == undefined){
+                                let componentError = Qt.createComponent("errorInfo.qml");
+                                if (componentError.status === Component.Ready) {
+                                    let child = componentError.createObject(mainWindow);
+                                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                    child.desc_error = "Файл с данными для БД содержит некорректные данные"
+                                    child.title_error = "ОШИБКА"
+
+                                }
+                            }
+                            else if (file.BD.BAPD == undefined){
+                                let componentError = Qt.createComponent("errorInfo.qml");
+                                if (componentError.status === Component.Ready) {
+                                    let child = componentError.createObject(mainWindow);
+                                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                    child.desc_error = "Файл с данными для БАППД содержит некорректные данные"
+                                    child.title_error = "ОШИБКА"
+
+                                }
+                            }
+                            else{
+                                let component2 = Qt.createComponent("DB.qml");
+                                if (component2.status === Component.Ready) {
+                                    let childRec2 = component2.createObject(scene)
+                                    if(!bapdLeft){
+                                        childRec2.x = Param.margin32
+                                        basiLeft = true}
+                                    else{
+                                        childRec2.x = Param.margin32*2+(scene.width - Param.margin32*3)/2
+
+                                    }
+
+                                    childRec2.y = Param.margin32
+
+                                    childRec2.widthAll = (scene.width - Param.margin32*3)/2
+                                    childRec2.heightAll = scene.height - Param.margin32*2
+                                    childRec2.title = "БАСИ"
+
+                                    let item = []
+                                    for (let i = 0; i < file.BD.BASI.length; i++){
+                                        let elem = file.BD.BASI[i]
+
+                                        item.push({number: elem.number, date: elem.date, time: elem.time, error: elem.error})
+
+                                    }
+
+                                    childRec2.itemComp = item
+                                    childRec2.close.connect(function(){
+                                        childRec2.destroy()
+                                        createBlockBASI = "no"
+                                        basiLeft = false
+                                        childRec1.click = "no"
+                                        childRec1.border.width = 0
+                                    })
+                                    basi = childRec2
+                                }
+                                createBlockBASI = "yes"
+                            }
+                        }
+                    }
+                    else if(createBlockBASI === "yes"){
+
+                        basi.destroy()
+                        createBlockBASI = "no"
+                        basiLeft = false
+                    }
+
+                }
+                )
+            }
+        }
+    }
+
+    //тени
+    DropShadow {
+        anchors.fill: menu_DB
+        horizontalOffset: Param.horizOffset
+        verticalOffset: Param.verticOffset
+        radius: Param.mainRadius
+        samples: Param.mainSamples
+        color: darkTheme?Param.dDropShadowColor:Param.lDropShadowColor
+        source: menu_DB
     }
 
     //меню для отоброжения связей и расположения

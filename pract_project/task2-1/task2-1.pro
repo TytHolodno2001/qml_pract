@@ -44,6 +44,8 @@ DISTFILES += \
     ThemeDark.png \
     ThemeLight.png \
     arrow.png \
+    errorInfo.qml \
+    expressHelp.qml \
     funckBlock.qml \
     list.qml \
     no.png \

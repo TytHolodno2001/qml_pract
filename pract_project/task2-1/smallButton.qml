@@ -8,6 +8,11 @@ Item {
     property string itemTextOnClick: "Текст"
     property string click: "no"
     signal onClick();
+    onClickChanged: {
+        if(click == "no"){
+            smallButton.border.width = 0
+        }
+    }
     Rectangle {
         id:smallButton
         width: Param.buttonSmallWidth

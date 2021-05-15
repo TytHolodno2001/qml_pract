@@ -17,14 +17,12 @@ Rectangle{
     property color accentColor: Param.accentСolor1
     property color fontColor: darkTheme?Param.dtextColor1:Param.ltextColor1
     property color borderColor: darkTheme?Param.delemThirdColor:Param.lelemThirdColor
-
-    property string title: "БАСИ"
-    property string numberProduct: "20"
-    property string dateProduct: "11.03.2021"
-    property string timeProduct: "18:00"
-    property var itemComp/*: [{mode: "Режим", bstp: "000000*", betp: "000000", bstr: "000000", betr: "000000*", info: "пока хз"},
-        {mode: "Режим", bstp: "000000", betp: "000000", bstr: "000000", betr: "000000", info: "пока хз"},
-        {mode: "Режим", bstp: "000000", betp: "000000", bstr: "000000", betr: "000000", info: "пока хз"}]*/
+    property string statePar: "bad"
+    property string title
+    property string numberProduct
+    property string dateProduct
+    property string timeProduct
+    property var itemComp
     signal close();
     onItemCompChanged: {
         listModel.append(itemComp)
@@ -34,7 +32,7 @@ Rectangle{
         id:table_info
         color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
         width: headHeight + smallWidth*2 + bigWidth
-        height: Param.tableHeight + 60
+        height: Param.tableHeight + headHeight
         visible: true
         radius: Param.elemRadius
 
@@ -64,8 +62,8 @@ Rectangle{
 
         Rectangle {
             id:onlyError
-            width: 100
-            height: 30
+            width: Param.tableButtonWidth
+            height: Param.tableButtonHeight
             anchors.right: parent.right
             anchors.rightMargin: headHeight
             anchors.top: parent.top
@@ -73,8 +71,8 @@ Rectangle{
             color: parent.color
             radius: Param.elemRadius
             border.color: borderColor
-            border.width: 2
-
+            border.width: Param.sizeFrame
+visible:statePar=="ok"?false:true
             Text {
                 text: "ошибки"
                 font.family: Param.textFontFamily
@@ -87,11 +85,38 @@ Rectangle{
 
             //отобразить только с ошибками
             MouseArea {
+                id:err_ma
+                property bool active: false
                 anchors.fill: parent
+                hoverEnabled : true
+
+                // при наведении
+                onEntered:{
+                    parent.border.color = Param.accentСolor3
+                }
+                onExited:{
+                    parent.border.color = active?Param.accentСolor1:borderColor
+                }
+
+                //при клике
+                onPressed:
+                {
+                    parent.color = darkTheme?Param.delemThirdColor:Param.lelemThirdColor
+                    parent.border.color = Param.accentСolor1}
+                onReleased:{
+                    themeChange.connect(function(){
+                        parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                    })
+                    parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                   parent.border.color = active?Param.accentСolor1:borderColor
+
+                }
                 onClicked: {
+                    all_ma.active = false
+                    active = true
                     let errorComp = [];
                     for(let i = 0; i < itemComp.length; i++){
-                        if((itemComp[i].bstp.includes("*"))||(itemComp[i].betp.includes("*"))||(itemComp[i].bstr.includes("*"))||(itemComp[i].betr.includes("*"))){
+                        if((itemComp[i].betp!=itemComp[i].betr)||(itemComp[i].bstp!=itemComp[i].bstr)){
                             errorComp.push(itemComp[i])
                         }
 
@@ -106,8 +131,8 @@ Rectangle{
 
         Rectangle {
             id:all
-            width: 100
-            height: 30
+            width: Param.tableButtonWidth
+            height: Param.tableButtonHeight
             anchors.right: parent.right
             anchors.rightMargin: headHeight + margin + onlyError.width
             anchors.top: parent.top
@@ -115,8 +140,8 @@ Rectangle{
             color: parent.color
             radius: Param.elemRadius
             border.color: Param.accentСolor1
-            border.width: 2
-
+            border.width:Param.sizeFrame
+visible:statePar=="ok"?false:true
             Text {
                 text: "все"
                 font.family: Param.textFontFamily
@@ -129,8 +154,35 @@ Rectangle{
 
             //отобразить только с ошибками
             MouseArea {
+                id: all_ma
+                 property bool active: false
                 anchors.fill: parent
+                hoverEnabled : true
+
+                // при наведении
+                onEntered:{
+                    parent.border.color = Param.accentСolor3
+                }
+                onExited:{
+                    parent.border.color = active?Param.accentСolor1:borderColor
+                }
+
+                //при клике
+                onPressed:
+                {
+                    parent.color = darkTheme?Param.delemThirdColor:Param.lelemThirdColor
+                    parent.border.color = Param.accentСolor1}
+                onReleased:{
+                    themeChange.connect(function(){
+                        parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                    })
+                    parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                   parent.border.color = active?Param.accentСolor1:borderColor
+
+                }
                 onClicked: {
+                    err_ma.active = false
+                    active = true
                     listModel.clear()
                     listModel.append(itemComp)
                     all.border.color = Param.accentСolor1
@@ -218,7 +270,7 @@ Rectangle{
         //заголовок
         Rectangle {
             id: table
-            height: 30
+            height: Param.tableButtonHeight
             width: Param.tableWidth - margin*2
             color: parent.color
             anchors.top: parent.top
@@ -230,7 +282,7 @@ Rectangle{
                 width: parent.width / 5
                 color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 border.color: borderColor
-                border.width: 2
+                border.width: Param.sizeFrame
                 anchors.left: parent.left
                 anchors.leftMargin: 0
             }
@@ -239,7 +291,7 @@ Rectangle{
                 width: parent.width / 5 * 2
                 color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 border.color: borderColor
-                border.width: 2
+                border.width: Param.sizeFrame
                 anchors.left: parent.left
                 anchors.leftMargin: parent.width / 5
                 Text {
@@ -260,7 +312,7 @@ Rectangle{
                 width: parent.width / 5 * 2
                 color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 border.color: borderColor
-                border.width: 2
+                border.width: Param.sizeFrame
                 anchors.left: parent.left
                 anchors.leftMargin: parent.width / 5 *3
                 Text {
@@ -279,11 +331,11 @@ Rectangle{
         }
 
         Rectangle {
-            height: 30
+            height: Param.tableButtonHeight
             width: Param.tableWidth - margin*2
             color: parent.color
             anchors.top: parent.top
-            anchors.topMargin: headHeight*2 - 10 + 30
+            anchors.topMargin: headHeight*2 - 10 + Param.tableButtonHeight
             anchors.left: parent.left
             anchors.leftMargin: margin
             Rectangle {
@@ -291,7 +343,7 @@ Rectangle{
                 width: parent.width / 5
                 color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 border.color: borderColor
-                border.width: 2
+                border.width: Param.sizeFrame
                 anchors.left: parent.left
                 anchors.leftMargin: 0
                 Text {
@@ -313,7 +365,7 @@ Rectangle{
                 width: parent.width / 5
                 color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 border.color: borderColor
-                border.width: 2
+                border.width: Param.sizeFrame
                 anchors.left: parent.left
                 anchors.leftMargin: parent.width / 5
                 Text {
@@ -334,7 +386,7 @@ Rectangle{
                 width: parent.width / 5
                 color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 border.color: borderColor
-                border.width: 2
+                 border.width: Param.sizeFrame
                 anchors.left: parent.left
                 anchors.leftMargin: parent.width / 5 *2
                 Text {
@@ -355,7 +407,7 @@ Rectangle{
                 width: parent.width / 5
                 color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 border.color: borderColor
-                border.width: 2
+                 border.width: Param.sizeFrame
                 anchors.left: parent.left
                 anchors.leftMargin: parent.width / 5 *3
                 Text {
@@ -376,7 +428,7 @@ Rectangle{
                 width: parent.width / 5
                 color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                 border.color: borderColor
-                border.width: 2
+                 border.width: Param.sizeFrame
                 anchors.left: parent.left
                 anchors.leftMargin: parent.width / 5 *4
                 Text {
@@ -398,11 +450,11 @@ Rectangle{
         Rectangle {
             id: listPar
             anchors.top: parent.top
-            anchors.topMargin: headHeight*2 - 10 + 30*2
+            anchors.topMargin: headHeight*2 - 10 + Param.tableButtonHeight*2
             anchors.left: parent.left
             anchors.leftMargin: margin
             width: Param.tableWidth - margin*2
-            height: table_info.height - (headHeight*2 - 10) - margin - 30*2
+            height: table_info.height - (headHeight*2 - 10) - margin - Param.tableButtonHeight*2
             clip: true
             color: parent.color
             radius: Param.elemRadius
@@ -416,15 +468,15 @@ Rectangle{
             Component {
                 id:listDelegate
                 Rectangle {
-                    height: 30
+                    height: Param.tableButtonHeight
                     width: Param.tableWidth - margin*2
-                    color: parent.color
+                    color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                     Rectangle {
                         height: parent.height
                         width: parent.width / 5
                         color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                         border.color: borderColor
-                        border.width: 2
+                         border.width: Param.sizeFrame
                         anchors.left: parent.left
                         anchors.leftMargin: 0
                         Text {
@@ -433,7 +485,7 @@ Rectangle{
                             font.family: Param.textFontFamily
                             anchors.fill: parent
                             font.pointSize: fontPointSize
-                            color:  mode.includes('*')?Param.accentСolor2:(darkTheme?Param.dtextColor1:Param.ltextColor1)
+                            color: darkTheme?Param.dtextColor1:Param.ltextColor1
                             horizontalAlignment: Text.AlignLeft
                             verticalAlignment: Text.AlignVCenter
                             anchors.left: parent.left
@@ -442,25 +494,54 @@ Rectangle{
                         MouseArea{
                             property bool create: false
                             anchors.fill: parent
+                            hoverEnabled : true
+                            // при наведении
+                            onEntered:{
+
+                                parent.border.color = Param.accentСolor3
+                            }
+                            onExited:{
+
+                                parent.border.color= darkTheme?Param.delemThirdColor:Param.lelemThirdColor
+                            }
+
+                            //при клике
+                            onPressed:
+                            {
+                                parent.color = darkTheme?Param.delemThirdColor:Param.lelemThirdColor
+
+                                parent.border.color = Param.accentСolor1
+                            }
+                            onReleased:{
+                                themeChange.connect(function(){
+                                    parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+                                })
+                                parent.color = darkTheme?Param.delemSecondColor:Param.lelemSecondColor
+
+                                border.color= darkTheme?Param.delemThirdColor:Param.lelemThirdColor
+                            }
                             onClicked: {
                                 if(!create){
-                                    let component = Qt.createComponent("expressHelpParam.qml");
+                                    let component = Qt.createComponent("expressHelp.qml");
                                     if (component.status === Component.Ready) {
                                         var child= component.createObject(main_rec);
                                         //открывается справа или слева
                                         child.x = 0
-                                        child.y = headHeight*2 - 10 + 30*2
+                                        child.y = headHeight*2 - 10 + Param.tableButtonHeight*2
                                         create = true
-
-
                                         child.title = mode
                                         let tableInfo = []
 
-                                        let string = info.split('#')
-                                        for (let i = 0; i < string.length; i++){
-                                            let elem = string[i].split('\\')
-                                            tableInfo.push({param: elem[0], bstp: elem[1], betp: elem[2], bstr: elem[3], betr: elem[4]})
+                                        child.numberProduct = main_rec.numberProduct
+                                        child.dateProduct = main_rec.dateProduct
+                                        child.timeProduct = main_rec.timeProduct
+
+
+                                        for (let i = 0; i < info.count; i++){
+                                            let elem = info.get(i)
+                                            tableInfo.push({name: elem.name, value: elem.value, statePar: elem.state,type:elem.type, infoPar: elem.info})
                                         }
+
                                         child.itemComp = tableInfo
 
                                         child.close.connect(function(){
@@ -477,7 +558,7 @@ Rectangle{
                         width: parent.width / 5
                         color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                         border.color: borderColor
-                        border.width: 2
+                         border.width: Param.sizeFrame
                         anchors.left: parent.left
                         anchors.leftMargin: parent.width / 5
                         Text {
@@ -486,7 +567,7 @@ Rectangle{
                             font.family: Param.textFontFamily
                             anchors.fill: parent
                             font.pointSize: fontPointSize
-                            color:  bstp.includes('*')?Param.accentСolor2:(darkTheme?Param.dtextColor1:Param.ltextColor1)
+                            color:  bstp!=bstr?Param.accentСolor2:(darkTheme?Param.dtextColor1:Param.ltextColor1)
                             horizontalAlignment: Text.AlignLeft
                             verticalAlignment: Text.AlignVCenter
                             anchors.left: parent.left
@@ -498,7 +579,7 @@ Rectangle{
                         width: parent.width / 5
                         color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                         border.color: borderColor
-                        border.width: 2
+                        border.width: Param.sizeFrame
                         anchors.left: parent.left
                         anchors.leftMargin: parent.width / 5 *2
                         Text {
@@ -507,7 +588,7 @@ Rectangle{
                             font.family: Param.textFontFamily
                             anchors.fill: parent
                             font.pointSize: fontPointSize
-                            color:  betp.includes('*')?Param.accentСolor2:(darkTheme?Param.dtextColor1:Param.ltextColor1)
+                            color:  betp!=betr?Param.accentСolor2:(darkTheme?Param.dtextColor1:Param.ltextColor1)
                             horizontalAlignment: Text.AlignLeft
                             verticalAlignment: Text.AlignVCenter
                             anchors.left: parent.left
@@ -519,7 +600,7 @@ Rectangle{
                         width: parent.width / 5
                         color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                         border.color: borderColor
-                        border.width: 2
+                        border.width: Param.sizeFrame
                         anchors.left: parent.left
                         anchors.leftMargin: parent.width / 5 *3
                         Text {
@@ -528,7 +609,7 @@ Rectangle{
                             font.family: Param.textFontFamily
                             anchors.fill: parent
                             font.pointSize: fontPointSize
-                            color:  bstr.includes('*')?Param.accentСolor2:(darkTheme?Param.dtextColor1:Param.ltextColor1)
+                            color:  bstp!=bstr?Param.accentСolor2:(darkTheme?Param.dtextColor1:Param.ltextColor1)
                             horizontalAlignment: Text.AlignLeft
                             verticalAlignment: Text.AlignVCenter
                             anchors.left: parent.left
@@ -540,7 +621,7 @@ Rectangle{
                         width: parent.width / 5
                         color: darkTheme?Param.delemSecondColor:Param.lelemSecondColor
                         border.color: borderColor
-                        border.width: 2
+                        border.width: Param.sizeFrame
                         anchors.left: parent.left
                         anchors.leftMargin: parent.width / 5 *4
                         Text {
@@ -549,7 +630,7 @@ Rectangle{
                             font.family: Param.textFontFamily
                             anchors.fill: parent
                             font.pointSize: fontPointSize
-                            color:  betr.includes('*')?Param.accentСolor2:(darkTheme?Param.dtextColor1:Param.ltextColor1)
+                            color: betp!=betr?Param.accentСolor2:(darkTheme?Param.dtextColor1:Param.ltextColor1)
                             horizontalAlignment: Text.AlignLeft
                             verticalAlignment: Text.AlignVCenter
                             anchors.left: parent.left

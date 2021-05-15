@@ -80,6 +80,10 @@ Item {
     property int tableBigWidth: 400 / 1.5
     property int tableHeadHeight: 80 / 1.5
     property int tableCellHeight: 40 / 1.5
+    property int tableMediumWidth: 800 / 1.5
+    property int tableMediumHeight: 150
+    property int tableButtonWidth: 100
+    property int tableButtonHeight: 30
     //список параметрво
     property int listWidth: 400/1.5
     property int listHeight: 200
