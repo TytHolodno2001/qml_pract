@@ -103,7 +103,7 @@ Rectangle{
             color: parent.color
 
             Text {
-                text: "Номер изделия: " + main_rec.numberProduct
+                text: "Номера изделий: " + main_rec.numberProduct
                 font.family: Param.textFontFamily
                 height: parent.height
                 width: parent.width/3

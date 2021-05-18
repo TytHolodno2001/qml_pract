@@ -238,7 +238,7 @@ Window {
 
     //функция создание компонентов для функционального блока
     function createItemComp(st) {
-        if (st === ""){
+        if (st === undefined){
             return 0
         }
         else if (st.length < 1 || st.length >2){
@@ -434,179 +434,223 @@ Window {
                 childRec.itemText = "Отобразить ППУ"
                 childRec.itemTextOnClick = "Скрыть ППУ"
                 buttonPPU = childRec
-                //параметры БА
-
-                let file = JSON.parse(readTextFile("file:/pract_project/task2-1/ppu.json"))
-                console.log(file.BA.BAPD[0].mode)
-                let itemCompPPU = createItemComp(file.BA.PPU)
-
-                childRec.onClick.connect(function(){
-                    if(menu_DB.bapd != null) {
-                        menu_DB.createBlockBAPD = "no"
-                        menu_DB.bapdLeft = false
-                        menu_DB.buttonBapdDB.click = "no"
-                        menu_DB.bapd.destroy()
-                    }
-                    if(menu_DB.basi != null) {
-                        menu_DB.createBlockBASI = "no"
-                        menu_DB.basiLeft = false
-                        menu_DB.buttonBasiDB.click = "no"
-                        menu_DB.basi.destroy()
-                    }
-                    if(createBlockPPU === "no") {
-                        createFunckBlock("PPU", "ППУ", Param.iconPPUDark, itemCompPPU)
-                        createBlockPPU = "yes"
-                    }
-                    else if(createBlockPPU === "yes"){
-                        let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
-                        PPU.data.visible = false
-                        visConnectNO("ППУ")
-                        createBlockPPU = "no-vis"
-                    }
-                    else {
-                        let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
-                        PPU.data.visible = true
-                        visConnect("ППУ")
-                        createBlockPPU = "yes"
-                    }
-                    if(menu2.visibleConnect === false){
-                        visConnectNO("ППУ")
-                    }
-                }
-                )
-
-
                 let childRec1 = component.createObject(menu)
                 childRec1.x = parent.x + Param.margin32
                 childRec1.y = parent.y  +Param.margin24 +Param.buttonSmallHeight+Param.buttonSmallHeight
                 childRec1.itemText = "Отобразить БАСИ"
                 childRec1.itemTextOnClick = "Скрыть БАСИ"
-buttonBASI= childRec1
-                //параметры БА
-                let itemCompBASI = createItemComp(file.BA.BASI)
+                buttonBASI= childRec1
 
-                childRec1.onClick.connect(function(){
-                    if(menu_DB.bapd != null) {
-                        menu_DB.createBlockBAPD = "no"
-                        menu_DB.bapdLeft = false
-                        menu_DB.buttonBapdDB.click = "no"
-                        menu_DB.bapd.destroy()
-                    }
-                    if(menu_DB.basi != null) {
-                        menu_DB.createBlockBASI = "no"
-                        menu_DB.basiLeft = false
-                        menu_DB.buttonBasiDB.click = "no"
-                        menu_DB.basi.destroy()
-                    }
-                    if(createBlockBASI === "no") {
-                        createFunckBlock("BASI", "БАСИ", Param.iconBASIDark, itemCompBASI)
-                        createBlockBASI = "yes"
-                    }
-                    else if(createBlockBASI === "yes"){
-                        let PPU = find(funckBlocks, function(item) { return item.id === "BASI" })
-                        PPU.data.visible = false
-                        visConnectNO("БАСИ")
-                        createBlockBASI = "no-vis"
-                    }
-                    else {
-                        let PPU = find(funckBlocks, function(item) { return item.id === "BASI" })
-                        PPU.data.visible = true
-                        visConnect("БАСИ")
-                        createBlockBASI = "yes"
-                    }
-                    if(menu2.visibleConnect === false){
-                        visConnectNO("БАСИ")
-                    }
-                }
-                )
 
                 let childRec2 = component.createObject(menu)
                 childRec2.x = parent.x + Param.margin32
                 childRec2.y = parent.y  +Param.margin24*2 +Param.buttonSmallHeight*2+Param.buttonSmallHeight
                 childRec2.itemText = "Отобразить БАПД"
                 childRec2.itemTextOnClick = "Скрыть БАПД"
-buttonBAPD= childRec2
-                //параметры БА
-                let itemCompBAPD = createItemComp(file.BA.BAPD)
+                buttonBAPD= childRec2
 
-                childRec2.onClick.connect(function(){
-                    if(menu_DB.bapd != null) {
-                        menu_DB.createBlockBAPD = "no"
-                        menu_DB.bapdLeft = false
-                        menu_DB.buttonBapdDB.click = "no"
-                        menu_DB.bapd.destroy()
-                    }
-                    if(menu_DB.basi != null) {
-                        menu_DB.createBlockBASI = "no"
-                        menu_DB.basiLeft = false
-                        menu_DB.buttonBasiDB.click = "no"
-                        menu_DB.basi.destroy()
-                    }
-                    if(createBlockBAPD === "no") {
-                        createFunckBlock("BAPD", "БАПД", Param.iconBAPDDark , itemCompBAPD)
-                        createBlockBAPD = "yes"
-                    }
-                    else if(createBlockBAPD === "yes"){
-                        let PPU = find(funckBlocks, function(item) { return item.id === "BAPD" })
-                        PPU.data.visible = false
-                        visConnectNO("БАПД")
-                        createBlockBAPD = "no-vis"
-                    }
-                    else {
-                        let PPU = find(funckBlocks, function(item) { return item.id === "BAPD" })
-                        PPU.data.visible = true
-                        visConnect("БАПД")
-                        createBlockBAPD = "yes"
-                    }
-                    if(menu2.visibleConnect === false){
-                        visConnectNO("БАПД")
-                    }
-                }
-                )
 
                 let childRec3 = component.createObject(menu)
                 childRec3.x = parent.x + Param.margin32
                 childRec3.y = parent.y  +Param.margin24*3 +Param.buttonSmallHeight*3+Param.buttonSmallHeight
                 childRec3.itemText = "Отобразить ППО"
                 childRec3.itemTextOnClick = "Скрыть ППО"
-buttonPPO= childRec3
-                //параметры БА
-                let itemCompPPO = createItemComp(file.BA.PPO)
+                buttonPPO= childRec3
 
-                childRec3.onClick.connect(function(){
-                    if(menu_DB.bapd != null) {
-                        menu_DB.createBlockBAPD = "no"
-                        menu_DB.bapdLeft = false
-                        menu_DB.buttonBapdDB.click = "no"
-                        menu_DB.bapd.destroy()
-                    }
-                    if(menu_DB.basi != null) {
-                        menu_DB.createBlockBASI = "no"
-                        menu_DB.basiLeft = false
-                        menu_DB.buttonBasiDB.click = "no"
-                        menu_DB.basi.destroy()
-                    }
-                    if(createBlockPPO === "no") {
-                        createFunckBlock("PPO", "ППО", Param.iconPPODark, itemCompPPO)
-                        createBlockPPO = "yes"
-                    }
-                    else if(createBlockPPO === "yes"){
-                        let PPU = find(funckBlocks, function(item) { return item.id === "PPO" })
-                        PPU.data.visible = false
-                        visConnectNO("ППО")
-                        createBlockPPO= "no-vis"
-                    }
-                    else {
-                        let PPU = find(funckBlocks, function(item) { return item.id === "PPO" })
-                        PPU.data.visible = true
-                        visConnect("ППО")
-                        createBlockPPO = "yes"
-                    }
-                    if(menu2.visibleConnect === false){
-                        visConnectNO("ППО")
-                    }
+
+
+                //параметры БА
+
+                if (readTextFile("file:/pract_project/task2-1/ppu.json") == ""){
+                    let componentError = Qt.createComponent("errorInfo.qml");
+                    let child = componentError.createObject(mainWindow);
+                    child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                    child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                    child.desc_error = "Отсутсвует файл с информацией"
+                    child.title_error = "ОШИБКА"
+                    childRec.onClick.connect(function(){
+                        child = componentError.createObject(mainWindow);
+                                            child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                            child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                            child.desc_error = "Отсутсвует файл с информацией"
+                                            child.title_error = "ОШИБКА"
+                    })
+                    childRec1.onClick.connect(function(){
+                        child = componentError.createObject(mainWindow);
+                                            child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                            child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                            child.desc_error = "Отсутсвует файл с информацией"
+                                            child.title_error = "ОШИБКА"
+                    })
+                    childRec2.onClick.connect(function(){
+                        child = componentError.createObject(mainWindow);
+                                            child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                            child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                            child.desc_error = "Отсутсвует файл с информацией"
+                                            child.title_error = "ОШИБКА"
+                    })
+                    childRec3.onClick.connect(function(){
+                        child = componentError.createObject(mainWindow);
+                                            child.x = mainWindow.width/2 - Param.itemCompWidth/2
+                                            child.y = mainWindow.height/2 - Param.itemCompHeight/2
+                                            child.desc_error = "Отсутсвует файл с информацией"
+                                            child.title_error = "ОШИБКА"
+                    })
+
+
                 }
-                )
+                else {
+                    let file = JSON.parse(readTextFile("file:/pract_project/task2-1/ppu.json"))
+
+                    let itemCompPPU = createItemComp(file.BA.PPU)
+
+                    childRec.onClick.connect(function(){
+                        if(menu_DB.bapd != null) {
+                            menu_DB.createBlockBAPD = "no"
+                            menu_DB.bapdLeft = false
+                            menu_DB.buttonBapdDB.click = "no"
+                            menu_DB.bapd.destroy()
+                        }
+                        if(menu_DB.basi != null) {
+                            menu_DB.createBlockBASI = "no"
+                            menu_DB.basiLeft = false
+                            menu_DB.buttonBasiDB.click = "no"
+                            menu_DB.basi.destroy()
+                        }
+                        if(createBlockPPU === "no") {
+                            createFunckBlock("PPU", "ППУ", Param.iconPPUDark, itemCompPPU)
+                            createBlockPPU = "yes"
+                        }
+                        else if(createBlockPPU === "yes"){
+                            let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
+                            PPU.data.visible = false
+                            visConnectNO("ППУ")
+                            createBlockPPU = "no-vis"
+                        }
+                        else {
+                            let PPU = find(funckBlocks, function(item) { return item.id === "PPU" })
+                            PPU.data.visible = true
+                            visConnect("ППУ")
+                            createBlockPPU = "yes"
+                        }
+                        if(menu2.visibleConnect === false){
+                            visConnectNO("ППУ")
+                        }
+                    }
+                    )
+                    //параметры БА
+                    let itemCompBASI = createItemComp(file.BA.BASI)
+
+                    childRec1.onClick.connect(function(){
+                        if(menu_DB.bapd != null) {
+                            menu_DB.createBlockBAPD = "no"
+                            menu_DB.bapdLeft = false
+                            menu_DB.buttonBapdDB.click = "no"
+                            menu_DB.bapd.destroy()
+                        }
+                        if(menu_DB.basi != null) {
+                            menu_DB.createBlockBASI = "no"
+                            menu_DB.basiLeft = false
+                            menu_DB.buttonBasiDB.click = "no"
+                            menu_DB.basi.destroy()
+                        }
+                        if(createBlockBASI === "no") {
+                            createFunckBlock("BASI", "БАСИ", Param.iconBASIDark, itemCompBASI)
+                            createBlockBASI = "yes"
+                        }
+                        else if(createBlockBASI === "yes"){
+                            let PPU = find(funckBlocks, function(item) { return item.id === "BASI" })
+                            PPU.data.visible = false
+                            visConnectNO("БАСИ")
+                            createBlockBASI = "no-vis"
+                        }
+                        else {
+                            let PPU = find(funckBlocks, function(item) { return item.id === "BASI" })
+                            PPU.data.visible = true
+                            visConnect("БАСИ")
+                            createBlockBASI = "yes"
+                        }
+                        if(menu2.visibleConnect === false){
+                            visConnectNO("БАСИ")
+                        }
+                    }
+                    )
+                    //параметры БА
+                    let itemCompBAPD = createItemComp(file.BA.BAPD)
+
+                    childRec2.onClick.connect(function(){
+                        if(menu_DB.bapd != null) {
+                            menu_DB.createBlockBAPD = "no"
+                            menu_DB.bapdLeft = false
+                            menu_DB.buttonBapdDB.click = "no"
+                            menu_DB.bapd.destroy()
+                        }
+                        if(menu_DB.basi != null) {
+                            menu_DB.createBlockBASI = "no"
+                            menu_DB.basiLeft = false
+                            menu_DB.buttonBasiDB.click = "no"
+                            menu_DB.basi.destroy()
+                        }
+                        if(createBlockBAPD === "no") {
+                            createFunckBlock("BAPD", "БАПД", Param.iconBAPDDark , itemCompBAPD)
+                            createBlockBAPD = "yes"
+                        }
+                        else if(createBlockBAPD === "yes"){
+                            let PPU = find(funckBlocks, function(item) { return item.id === "BAPD" })
+                            PPU.data.visible = false
+                            visConnectNO("БАПД")
+                            createBlockBAPD = "no-vis"
+                        }
+                        else {
+                            let PPU = find(funckBlocks, function(item) { return item.id === "BAPD" })
+                            PPU.data.visible = true
+                            visConnect("БАПД")
+                            createBlockBAPD = "yes"
+                        }
+                        if(menu2.visibleConnect === false){
+                            visConnectNO("БАПД")
+                        }
+                    }
+                    )
+                    let itemCompPPO = createItemComp(file.BA.PPO)
+                    childRec3.onClick.connect(function(){
+                        if(menu_DB.bapd != null) {
+                            menu_DB.createBlockBAPD = "no"
+                            menu_DB.bapdLeft = false
+                            menu_DB.buttonBapdDB.click = "no"
+                            menu_DB.bapd.destroy()
+                        }
+                        if(menu_DB.basi != null) {
+                            menu_DB.createBlockBASI = "no"
+                            menu_DB.basiLeft = false
+                            menu_DB.buttonBasiDB.click = "no"
+                            menu_DB.basi.destroy()
+                        }
+                        if(createBlockPPO === "no") {
+                            createFunckBlock("PPO", "ППО", Param.iconPPODark, itemCompPPO)
+                            createBlockPPO = "yes"
+                        }
+                        else if(createBlockPPO === "yes"){
+                            let PPU = find(funckBlocks, function(item) { return item.id === "PPO" })
+                            PPU.data.visible = false
+                            visConnectNO("ППО")
+                            createBlockPPO= "no-vis"
+                        }
+                        else {
+                            let PPU = find(funckBlocks, function(item) { return item.id === "PPO" })
+                            PPU.data.visible = true
+                            visConnect("ППО")
+                            createBlockPPO = "yes"
+                        }
+                        if(menu2.visibleConnect === false){
+                            visConnectNO("ППО")
+                        }
+                    }
+                    )
+                }
+
+
+
             }
         }
     }

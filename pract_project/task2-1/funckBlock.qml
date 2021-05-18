@@ -973,7 +973,7 @@ childRec.statePar = statePar
                                             child.si = infoPar.SI
                                             child.mn = infoPar.MN
                                             child.title = name
-                                            child.numberProduct.number
+                                            child.numberProduct = infoPar.number
                                             child.dateProduct = infoPar.date
                                             child.timeProduct= infoPar.time
 

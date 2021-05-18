@@ -273,7 +273,7 @@ visible:statePar=="ok"?false:true
                             font.family: Param.textFontFamily
                             anchors.fill: parent
                             font.pointSize: fontPointSize
-                            color:  (value=="Мощ(Ватт)"||value=="t(C )")?(darkTheme?Param.dtextColor1:Param.ltextColor1):((value<max)&&(value>min))?(darkTheme?Param.dtextColor1:Param.ltextColor1):Param.accentСolor2
+                            color:  (value=="Знач(Вт)"||value=="t(C )")?(darkTheme?Param.dtextColor1:Param.ltextColor1):((value<max)&&(value>min))?(darkTheme?Param.dtextColor1:Param.ltextColor1):Param.accentСolor2
                             horizontalAlignment: Text.AlignLeft
                             verticalAlignment: Text.AlignVCenter
                             anchors.left: parent.left

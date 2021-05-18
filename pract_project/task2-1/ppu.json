@@ -69,6 +69,12 @@
                 "date": "12.01.2001",
                 "time": "13:30:40",
                 "error": "без ошибок"
+            },
+            {
+                "number": "10",
+                "date": "18.05.2021",
+                "time": "13:30:40",
+                "error": "есть ошибки"
             }
         ],
         "BASI": [
@@ -858,6 +864,13 @@
                                             "type": "table3",
                                             "state": "ok",
                                             "info": "no"
+                                        },
+                                        {
+                                            "name": "Настройки сброса",
+                                            "value": "без ошибок",
+                                            "type": "table3",
+                                            "state": "ok",
+                                            "info": "no"
                                         }
                                     ]
                                 }
@@ -924,7 +937,7 @@
                         "type": "expressHelpPPO",
                         "state": "bad",
                         "info": {
-                            "number": "13",
+                            "number": "13, 14",
                             "date": "12.08.12",
                             "time": "13:30:40",
                             "mode": "ВИ - полный",
